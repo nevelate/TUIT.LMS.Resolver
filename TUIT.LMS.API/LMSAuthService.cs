@@ -11,13 +11,13 @@ namespace TUIT.LMS.API
 
         private CookieContainer _cookieContainer;
 
-        private static readonly Dictionary<string, string> headers;
+        private static readonly Dictionary<string, string> loginRequestHeaders;
 
         private const string PostRequestFormat = "_token={0}&login={1}&password={2}&g-recaptcha-response={3}";
 
         static LMSAuthService()
         {
-            headers = new()
+            loginRequestHeaders = new()
                 {
                     {"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"},
                     {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"},
@@ -54,7 +54,7 @@ namespace TUIT.LMS.API
                 Content = content,
             };
 
-            foreach (var pair in headers)
+            foreach (var pair in loginRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }

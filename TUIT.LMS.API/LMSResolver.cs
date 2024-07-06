@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,6 +24,29 @@ namespace TUIT.LMS.API
 
         private HttpClient _httpClient;
         private LMSAuthService _authService;
+
+        private static readonly Dictionary<string, string> uploadRequestHeaders;
+
+        static LMSResolver()
+        {
+            uploadRequestHeaders = new()
+                {
+                    {"Accept", "*/*"},
+                    {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"},
+                    {"Origin", "https://lms.tuit.uz"},
+                    {"sec-ch-ua", "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\""},
+                    {"sec-ch-ua-mobile", "?0"},
+                    {"sec-ch-ua-platform", "\"Windows\""},
+                    {"Sec-Fetch-Dest", "document"},
+                    {"Sec-Fetch-Mode", "navigate"},
+                    {"Sec-Fetch-Site", "same-origin"},
+                    {"Sec-Fetch-User", "?1"},
+                    {"Upgrade-Insecure-Requests", "1"},
+                    {"Host", "lms.tuit.uz"},
+                    {"X-Requested-With", "XMLHttpRequest" },
+                    {"Referer", "https://lms.tuit.uz/student/my-courses/show/18454" },                    
+                };
+        }
 
         public LMSResolver(LMSAuthService authService)
         {
@@ -199,6 +224,38 @@ namespace TUIT.LMS.API
             }
 
             return list;
+        }
+
+        public async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId)
+        {
+            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+
+            string csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
+
+            using var multipartFormContent = new MultipartFormDataContent();             
+            
+            var fileStreamContent = new StreamContent(File.OpenRead(filePath));
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
+
+            multipartFormContent.Add(new StringContent(uploadId.ToString()), name: "id");
+            multipartFormContent.Add(fileStreamContent, name: "file", fileName: "M.pdf");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/student/my-courses/upload")
+            {
+                Content = multipartFormContent,
+            };
+
+            foreach (var pair in uploadRequestHeaders)
+            {
+                request.Headers.Add(pair.Key, pair.Value);
+            }
+
+            request.Headers.Add("X-CSRF-TOKEN", csrf_token);
+
+            using var response = await _httpClient.SendAsync(request);            
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            return responseText.Contains("true");
         }
     }
 }
