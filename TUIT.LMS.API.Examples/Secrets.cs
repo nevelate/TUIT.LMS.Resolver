@@ -8,7 +8,7 @@ namespace TUIT.LMS.API.Examples
 {
     public static class Secrets
     {
-        public static readonly string Login = "";
+        public static readonly string Login = "12";
         public static readonly string Password = "";
         public static readonly string Token = "";
         public static readonly string Grecaptcha = "";
