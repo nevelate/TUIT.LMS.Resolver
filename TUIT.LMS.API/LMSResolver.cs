@@ -137,7 +137,7 @@ namespace TUIT.LMS.API
 
             foreach (var tr in document.QuerySelectorAll("table#simple-table1 tbody tr"))
             {
-                assignments.Add(new Assignment()
+                var assignment = new Assignment()
                 {
                     Teacher = tr.QuerySelectorAll("td")[0].TextContent,
                     TaskName = tr.QuerySelector("td div p").TextContent,
@@ -145,8 +145,11 @@ namespace TUIT.LMS.API
                     Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, new CultureInfo("ru-RU")),
                     CurrentGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[0].TextContent),
                     MaxGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
-                    UploadedFileUrl = tr.QuerySelector("td a").GetAttribute("href"),
-                });
+                };
+
+
+
+                assignments.Add(assignment);
             }
             assignmentsPage.Assignments = assignments;
 
