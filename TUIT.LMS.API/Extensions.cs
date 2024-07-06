@@ -30,5 +30,15 @@ namespace TUIT.LMS.API
             s = s.Remove(0, colonIndex + 1);
             return s.Trim('\n', ' ', '\t');
         }
+
+        public static int? ParseOrReturnNull(this string s)
+        {
+            int result = 0;
+            if (int.TryParse(s, out result))
+            {
+                return result;
+            }
+            return null;
+        }
     }
 }

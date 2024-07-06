@@ -143,11 +143,20 @@ namespace TUIT.LMS.API
                     TaskName = tr.QuerySelector("td div p").TextContent,
                     TaskUrl = tr.QuerySelector("td div a").GetAttribute("href"),
                     Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, new CultureInfo("ru-RU")),
-                    CurrentGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[0].TextContent),
+                    CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
 
-
+                if (tr.QuerySelector("td > a").GetAttribute("href") == "#")
+                {
+                    assignment.UploadId = int.Parse(tr.QuerySelector("td > a").GetAttribute("data-id"));
+                }
+                else
+                {
+                    assignment.UploadId = tr.QuerySelector("td div button.js-btn-upload")?.GetAttribute("data-id").ParseOrReturnNull();
+                    assignment.UploadedFileName = tr.QuerySelector("td > a").TextContent.Trim('\n', ' ', '\t');
+                    assignment.UploadedFileUrl = tr.QuerySelector("td > a").GetAttribute("href");
+                }
 
                 assignments.Add(assignment);
             }

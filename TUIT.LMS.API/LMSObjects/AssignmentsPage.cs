@@ -25,10 +25,11 @@ namespace TUIT.LMS.API.LMSObjects
 
         public DateTime Deadline { get; set; }
 
-        public int CurrentGrade { get; set; }
+        public int? CurrentGrade { get; set; }
         public int MaxGrade { get; set; }
 
-        public int UploadId { get; set; }
+        public int? UploadId { get; set; }
+        public string? UploadedFileName { get; set; }
         public string? UploadedFileUrl { get; set; }
     }
 }
