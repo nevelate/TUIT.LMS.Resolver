@@ -363,4 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # File used to store some private data
-Secrets.cs
+TUIT.LMS.API.Examples/Secrets.cs
