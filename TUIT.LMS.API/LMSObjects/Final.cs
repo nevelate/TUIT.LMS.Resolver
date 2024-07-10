@@ -24,12 +24,10 @@ namespace TUIT.LMS.API.LMSObjects
         [JsonConverter(typeof(DateOnlyConverter))]
         public DateOnly ExamDate { get; set; }
         
-        [JsonProperty("from")]
-        //[JsonConverter(typeof(TimeOnlyConverter))]
+        [JsonProperty("from")]        
         public TimeOnly StartTime { get; set; }
         
-        [JsonProperty("to")]
-        //[JsonConverter(typeof(TimeOnlyConverter))]
+        [JsonProperty("to")]        
         public TimeOnly EndTime { get; set; }
 
         [JsonProperty("final_limit")]
