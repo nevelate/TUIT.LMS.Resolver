@@ -45,7 +45,7 @@ namespace TUIT.LMS.API.Examples
             await authService.TryLoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
             LMSResolver resolver = new LMSResolver(authService);
 
-            var isUploaded = await resolver.UploadFileAsync(@"D:\M.pdf", 18454, 88260);
+            var data = await resolver.GetAssignmentsPageAsync(17449);
 
             Console.WriteLine("End");
         }

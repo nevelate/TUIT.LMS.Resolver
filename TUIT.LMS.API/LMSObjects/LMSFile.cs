@@ -8,6 +8,18 @@ namespace TUIT.LMS.API.LMSObjects
 {
     public class LMSFile
     {
+        public string? FileName { get; set; }
+        public string? FileUrl { get; set; }
 
+        public LMSFile()
+        {
+
+        }
+
+        public LMSFile(string fileName, string fileUrl)
+        {
+            FileName = fileName;
+            FileUrl = fileUrl;
+        }
     }
 }

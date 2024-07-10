@@ -44,7 +44,7 @@ namespace TUIT.LMS.API
                     {"Upgrade-Insecure-Requests", "1"},
                     {"Host", "lms.tuit.uz"},
                     {"X-Requested-With", "XMLHttpRequest" },
-                    {"Referer", "https://lms.tuit.uz/student/my-courses/show/18454" },                    
+                    {"Referer", "https://lms.tuit.uz/student/my-courses/show/18454" },
                 };
         }
 
@@ -128,19 +128,31 @@ namespace TUIT.LMS.API
 
         public async Task<List<Lesson>> GetLessonsAsync(int courseId, bool isLecture)
         {
+            var dateRegex = new Regex(@"\(.*\)");
+
             var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
             List<Lesson> lessons = new List<Lesson>();
 
-            foreach (var lesson in document.QuerySelectorAll(isLecture ? "div#lecture tbody > tr" : "div#practise tbody > tr"))
+            foreach (var tr in document.QuerySelectorAll(isLecture ? "div#lecture tbody > tr" : "div#practise tbody > tr"))
             {
-                lessons.Add(new()
+                var lesson = new Lesson
                 {
-                    ThemeTitle = lesson.QuerySelector("td p").TextContent,
-                    ThemeNumber = int.Parse(lesson.QuerySelectorAll("td")[0].TextContent),
-                    LessonDate = DateOnly.Parse(lesson.QuerySelectorAll("td")[2].TextContent),
+                    ThemeTitle = tr.QuerySelector("td p").TextContent,
+                    ThemeNumber = int.Parse(tr.QuerySelectorAll("td")[0].TextContent),
+                    LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty)),
                     IsLecture = isLecture,
-                    AttachmentsUrl = lesson.QuerySelectorAll("td a").Select(a => a.GetAttribute("href")).ToList(),
-                });
+                };
+
+                var attachments = new List<LMSFile>();
+
+                foreach (var a in tr.QuerySelectorAll("td a"))
+                {
+                    attachments.Add(new(a.TextContent.Trim('\n', ' ', '\t'), a.GetAttribute("href")));
+                }
+
+                lesson.Attachments = attachments;
+
+                lessons.Add(lesson);
             }
 
             return lessons;
@@ -166,21 +178,31 @@ namespace TUIT.LMS.API
                 {
                     Teacher = tr.QuerySelectorAll("td")[0].TextContent,
                     TaskName = tr.QuerySelector("td div p").TextContent,
-                    TaskUrl = tr.QuerySelector("td div a").GetAttribute("href"),
                     Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, new CultureInfo("ru-RU")),
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
 
-                if (tr.QuerySelector("td > a").GetAttribute("href") == "#")
+                assignment.TaskFile = new(
+                    fileName: tr.QuerySelector("td div a").TextContent.Trim('\n', ' ', '\t'),
+                    fileUrl: tr.QuerySelector("td div a").GetAttribute("href")
+                    );
+
+                if (tr.QuerySelector("td > a") != null)
                 {
-                    assignment.UploadId = int.Parse(tr.QuerySelector("td > a").GetAttribute("data-id"));
-                }
-                else
-                {
-                    assignment.UploadId = tr.QuerySelector("td div button.js-btn-upload")?.GetAttribute("data-id").ParseOrReturnNull();
-                    assignment.UploadedFileName = tr.QuerySelector("td > a").TextContent.Trim('\n', ' ', '\t');
-                    assignment.UploadedFileUrl = tr.QuerySelector("td > a").GetAttribute("href");
+                    if (tr.QuerySelector("td > a").GetAttribute("href") == "#")
+                    {
+                        assignment.UploadId = int.Parse(tr.QuerySelector("td > a").GetAttribute("data-id"));
+                    }
+                    else
+                    {
+                        assignment.UploadId = tr.QuerySelector("td div button.js-btn-upload")?.GetAttribute("data-id").ParseOrReturnNull();
+
+                        assignment.UploadedFile = new(
+                            fileName: tr.QuerySelector("td > a").TextContent.Trim('\n', ' ', '\t'),
+                            fileUrl: tr.QuerySelector("td > a").GetAttribute("href")
+                            );
+                    }
                 }
 
                 assignments.Add(assignment);
@@ -232,8 +254,8 @@ namespace TUIT.LMS.API
 
             string csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
 
-            using var multipartFormContent = new MultipartFormDataContent();             
-            
+            using var multipartFormContent = new MultipartFormDataContent();
+
             var fileStreamContent = new StreamContent(File.OpenRead(filePath));
             fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
 
@@ -252,7 +274,7 @@ namespace TUIT.LMS.API
 
             request.Headers.Add("X-CSRF-TOKEN", csrf_token);
 
-            using var response = await _httpClient.SendAsync(request);            
+            using var response = await _httpClient.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
 
             return responseText.Contains("true");

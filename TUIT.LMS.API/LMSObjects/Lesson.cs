@@ -13,6 +13,6 @@ namespace TUIT.LMS.API.LMSObjects
         public DateOnly LessonDate { get; set; }
         public bool IsLecture { get; set; }
 
-        public List<string?> AttachmentsUrl { get; set; } = null!;
+        public List<LMSFile> Attachments { get; set; } = null!;
     }
 }

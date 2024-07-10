@@ -21,7 +21,7 @@ namespace TUIT.LMS.API.LMSObjects
         public string? Teacher { get; set; }
 
         public string? TaskName { get; set; }
-        public string? TaskUrl { get; set; }
+        public LMSFile? TaskFile { get; set; }
 
         public DateTime Deadline { get; set; }
 
@@ -29,7 +29,6 @@ namespace TUIT.LMS.API.LMSObjects
         public int MaxGrade { get; set; }
 
         public int? UploadId { get; set; }
-        public string? UploadedFileName { get; set; }
-        public string? UploadedFileUrl { get; set; }
+        public LMSFile? UploadedFile { get; set; }
     }
 }
