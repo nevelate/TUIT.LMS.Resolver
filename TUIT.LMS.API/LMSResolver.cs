@@ -79,9 +79,15 @@ namespace TUIT.LMS.API
             return information;
         }
 
-        public async Task<List<News>> GetAllNewsAsync()
+        public async Task<List<News>> GetNewsAsync(int page = 1)
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/dashboard/news");
+            var newsUrl = page switch
+            {
+                1 => "https://lms.tuit.uz/dashboard/news",
+                _ => "https://lms.tuit.uz/dashboard/news?page=" + page,
+            };
+
+            var document = await _httpClient.GetHTMLAsync(newsUrl);
             List<News> news = new List<News>();
 
             foreach (var column in document.QuerySelectorAll("div.row div.col-md-4 div.card.p"))
