@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using AngleSharp.Browser;
+using AngleSharp.Dom;
+using AngleSharp.Html.Parser;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 
@@ -6,17 +9,28 @@ namespace TUIT.LMS.API
 {
     public class LMSAuthService
     {
-        public HttpClient HttpClient { get; private set; }
+        private HttpClient _httpClient;
         private HttpClientHandler _httpClientHandler;
 
         private CookieContainer _cookieContainer;
 
-        private static readonly Dictionary<string, string> loginRequestHeaders;
+        private HtmlParser _htmlParser;
+
+        private readonly Dictionary<string, string> loginRequestHeaders;
 
         private const string PostRequestFormat = "_token={0}&login={1}&password={2}&g-recaptcha-response={3}";
 
-        static LMSAuthService()
+        public event Action? LoginRequested;
+
+        public LMSAuthService()
         {
+            _cookieContainer = new CookieContainer();
+            _httpClientHandler = new HttpClientHandler
+            {
+                CookieContainer = _cookieContainer,
+            };
+            _httpClient = new HttpClient(_httpClientHandler);
+
             loginRequestHeaders = new()
                 {
                     {"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"},
@@ -34,16 +48,6 @@ namespace TUIT.LMS.API
                 };
         }
 
-        public LMSAuthService()
-        {
-            _cookieContainer = new CookieContainer();
-            _httpClientHandler = new HttpClientHandler
-            {
-                CookieContainer = _cookieContainer,
-            };
-            HttpClient = new HttpClient(_httpClientHandler);
-        }
-
         public async Task<bool> TryLoginAsync(string login, string password, string token, string grecaptcha)
         {
             var content = new StringContent(string.Format(PostRequestFormat, token, login, password, grecaptcha));
@@ -59,15 +63,34 @@ namespace TUIT.LMS.API
                 request.Headers.Add(pair.Key, pair.Value);
             }
 
-            var response = await HttpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             var responseAsString = await response.Content.ReadAsStringAsync();
 
             return responseAsString.Contains("Dashboard");
         }
 
-        public bool CheckIfNeededReLoginAsync()
+        public bool CheckIfNeededReLogin()
         {
             return _cookieContainer.GetCookies(new Uri("https://lms.tuit.uz")).Any(c => c.Expired);
+        }
+
+        public async Task<IDocument> GetHTMLAsync(string? requestUri)
+        {
+            if (CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            var responseAsString = await _httpClient.GetStringAsync(requestUri);
+            return await _htmlParser.ParseDocumentAsync(responseAsString);
+        }
+
+        public async Task<string> GetStringAsync(string? requestUri)
+        {
+            if (CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            return await _httpClient.GetStringAsync(requestUri);
+        }
+
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
+        {
+            if (CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            return await _httpClient.SendAsync(request);
         }
     }
 }

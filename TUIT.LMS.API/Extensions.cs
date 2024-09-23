@@ -11,19 +11,6 @@ namespace TUIT.LMS.API
 {
     internal static class Extensions
     {
-        private static HtmlParser _parser;
-
-        static Extensions()
-        {
-            _parser = new HtmlParser();
-        }
-
-        public static async Task<IDocument> GetHTMLAsync(this HttpClient httpClient, string url)
-        {
-            var responseAsString = await httpClient.GetStringAsync(url);
-            return await _parser.ParseDocumentAsync(responseAsString);
-        }
-
         public static string RemoveUpToColonAndTrim(this string s)
         {
             int colonIndex = s.IndexOf(":");

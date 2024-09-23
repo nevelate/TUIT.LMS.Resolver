@@ -17,18 +17,19 @@ namespace TUIT.LMS.API
 {
     public class LMSResolver
     {
-        public const string MyCoursesUrl = "https://lms.tuit.uz/student/my-courses/data?semester_id=";
-        public const string FinalsUrl = "https://lms.tuit.uz/student/finals/data?semester_id=";
-        public const string ScheduleUrl = "https://lms.tuit.uz/student/schedule/load/";
-        public const string AbsencesUrl = "https://lms.tuit.uz/student/attendance/data?semester_id=";
-
-        private HttpClient _httpClient;
+        private const string MyCoursesUrl = "https://lms.tuit.uz/student/my-courses/data?semester_id=";
+        private const string FinalsUrl = "https://lms.tuit.uz/student/finals/data?semester_id=";
+        private const string ScheduleUrl = "https://lms.tuit.uz/student/schedule/load/";
+        private const string AbsencesUrl = "https://lms.tuit.uz/student/attendance/data?semester_id=";
+        
         private LMSAuthService _authService;
 
-        private static readonly Dictionary<string, string> uploadRequestHeaders;
+        private readonly Dictionary<string, string> uploadRequestHeaders;
 
-        static LMSResolver()
+        public LMSResolver(LMSAuthService authService)
         {
+            _authService = authService;
+
             uploadRequestHeaders = new()
                 {
                     {"Accept", "*/*"},
@@ -48,15 +49,9 @@ namespace TUIT.LMS.API
                 };
         }
 
-        public LMSResolver(LMSAuthService authService)
-        {
-            _authService = authService;
-            _httpClient = authService.HttpClient;
-        }
-
         public async Task<Information> GetInformationAsync()
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/info");
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/info");
             var information = new Information()
             {
                 FullName = document.QuerySelectorAll("div.card.relative p.m-b-xs")[0].TextContent.RemoveUpToColonAndTrim(),
@@ -87,13 +82,13 @@ namespace TUIT.LMS.API
                 _ => "https://lms.tuit.uz/dashboard/news?page=" + page,
             };
 
-            var document = await _httpClient.GetHTMLAsync(newsUrl);
+            var document = await _authService.GetHTMLAsync(newsUrl);
             List<News> news = new List<News>();
 
             foreach (var column in document.QuerySelectorAll("div.row div.col-md-4 div.card.p"))
             {
                 var url = column.QuerySelector("div.d-flex a")?.GetAttribute("href");
-                var newsPage = await _httpClient.GetHTMLAsync(url);
+                var newsPage = await _authService.GetHTMLAsync(url);
                 var description = newsPage.QuerySelector("div.panel-body blockquote div")?.TextContent;
                 news.Add(new()
                 {
@@ -108,7 +103,7 @@ namespace TUIT.LMS.API
 
         public async Task<List<Discipline>> GetDisciplinesAsync()
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/study-plan");
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/study-plan");
 
             List<Discipline> disciplines = new List<Discipline>();
 
@@ -136,7 +131,7 @@ namespace TUIT.LMS.API
         {
             var dateRegex = new Regex(@"\(.*\)");
 
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
             List<Lesson> lessons = new List<Lesson>();
 
             foreach (var tr in document.QuerySelectorAll(isLecture ? "div#lecture tbody > tr" : "div#practise tbody > tr"))
@@ -166,7 +161,7 @@ namespace TUIT.LMS.API
 
         public async Task<AssignmentsPage> GetAssignmentsPageAsync(int courseId)
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             AssignmentsPage assignmentsPage = new AssignmentsPage()
             {
@@ -220,7 +215,7 @@ namespace TUIT.LMS.API
 
         public async Task<Dictionary<int, string>> GetSemesterIdsAsync()
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/my-courses");
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses");
             Dictionary<int, string> dictionary = new Dictionary<int, string>();
 
             foreach (var option in document.QuerySelectorAll("select.js-semester option"))
@@ -237,9 +232,17 @@ namespace TUIT.LMS.API
         /// <param name="url">Constants of this class</param>
         /// <param name="semesterId"></param>
         /// <returns></returns>
-        public async Task<List<T>> GetLMSObjectsAsync<T>(string url, int semesterId)
+        public async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId)
         {
-            string data = await _httpClient.GetStringAsync(url + semesterId);
+            string url = typeof(T).Name switch
+            {
+                "Course" => MyCoursesUrl,
+                "Absence" => AbsencesUrl,
+                "TableLesson" => ScheduleUrl,
+                "Final" => FinalsUrl,
+            };
+
+            string data = await _authService.GetStringAsync(url + semesterId);
 
             JObject jObject = JObject.Parse(data);
             List<JToken> results = jObject[typeof(T) == typeof(TableLesson) ? "json" : "data"].Children().ToList();
@@ -256,7 +259,7 @@ namespace TUIT.LMS.API
 
         public async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId)
         {
-            var document = await _httpClient.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             string csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
 
@@ -280,7 +283,7 @@ namespace TUIT.LMS.API
 
             request.Headers.Add("X-CSRF-TOKEN", csrf_token);
 
-            using var response = await _httpClient.SendAsync(request);
+            using var response = await _authService.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
 
             return responseText.Contains("true");
