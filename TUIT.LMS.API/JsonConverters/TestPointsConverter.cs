@@ -27,8 +27,8 @@ namespace TUIT.LMS.API.JsonConverters
             {
                 list.Add(new()
                 {
-                    TestNumber = (int)row["number"],
-                    Point = (int)row["point"]
+                    TestNumber = (int)(long)row["number"],
+                    Point = (int)(long)row["point"]
                 });
             }
 
