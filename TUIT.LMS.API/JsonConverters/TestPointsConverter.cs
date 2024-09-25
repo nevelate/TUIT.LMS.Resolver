@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TUIT.LMS.API.LMSObjects;
 
 namespace TUIT.LMS.API.JsonConverters
 {
@@ -20,11 +21,15 @@ namespace TUIT.LMS.API.JsonConverters
             string data = reader.Value as string;
             DataTable dataTable = JsonConvert.DeserializeObject<DataTable>(data);
 
-            List<(string?, string?)> list = new List<(string?, string?)> ();
+            List<TestPoint> list = new List<TestPoint> ();
 
             foreach (DataRow row in dataTable.Rows)
             {
-                list.Add(new(row["number"].ToString(), row["point"].ToString()));
+                list.Add(new()
+                {
+                    TestNumber = (int)row["number"],
+                    Point = (int)row["point"]
+                });
             }
 
             return list;
