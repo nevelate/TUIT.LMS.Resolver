@@ -109,7 +109,7 @@ namespace TUIT.LMS.API
 
             foreach (var row in document.QuerySelectorAll("div.page-inner > div.row"))
             {
-                foreach (var card in document.QuerySelectorAll("div.col-lg-6 > div.card"))
+                foreach (var card in row.QuerySelectorAll("div.col-lg-6 > div.card"))
                 {
                     foreach (var tr in card.QuerySelectorAll("table > tbody > tr"))
                     {
