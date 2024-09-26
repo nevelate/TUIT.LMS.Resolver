@@ -18,7 +18,7 @@ namespace TUIT.LMS.API.LMSObjects
         public string? Address { get; set; }
         public string? TemporaryAddress { get; set; }
 
-        public string? PhotoUrl { get; set; }
+        public string? Base64Photo { get; set; }
 
         public string? Specialization { get; set; }
         public string? StudyLanguage { get; set; }

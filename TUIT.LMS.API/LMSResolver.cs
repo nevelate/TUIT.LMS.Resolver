@@ -21,7 +21,9 @@ namespace TUIT.LMS.API
         private const string FinalsUrl = "https://lms.tuit.uz/student/finals/data?semester_id=";
         private const string ScheduleUrl = "https://lms.tuit.uz/student/schedule/load/";
         private const string AbsencesUrl = "https://lms.tuit.uz/student/attendance/data?semester_id=";
-        
+
+        private const string ChangeLanguageRequestFormat = "_token={0}&language={1}";
+
         private LMSAuthService _authService;
 
         private readonly Dictionary<string, string> uploadRequestHeaders;
@@ -45,7 +47,6 @@ namespace TUIT.LMS.API
                     {"Upgrade-Insecure-Requests", "1"},
                     {"Host", "lms.tuit.uz"},
                     {"X-Requested-With", "XMLHttpRequest" },
-                    {"Referer", "https://lms.tuit.uz/student/my-courses/show/18454" },
                 };
         }
 
@@ -61,7 +62,7 @@ namespace TUIT.LMS.API
                 Address = document.QuerySelectorAll("div.card.relative p.m-b-xs")[4].TextContent.RemoveUpToColonAndTrim(),
                 TemporaryAddress = document.QuerySelectorAll("div.card.relative p")[6].TextContent.RemoveUpToColonAndTrim(),
 
-                PhotoUrl = document.QuerySelector("div.card.relative p.text-center.m-b-md img")?.GetAttribute("src"),
+                Base64Photo = document.QuerySelector("div.card.relative p.text-center.m-b-md img")?.GetAttribute("src"),
 
                 Specialization = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[0].TextContent.RemoveUpToColonAndTrim(),
                 StudyLanguage = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(),
@@ -69,7 +70,7 @@ namespace TUIT.LMS.API
                 TypeOfStudy = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[3].TextContent.RemoveUpToColonAndTrim(),
                 Year = int.Parse(document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[4].TextContent.RemoveUpToColonAndTrim()),
                 Group = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[5].TextContent.RemoveUpToColonAndTrim(),
-                Tutor = document.QuerySelectorAll("div.card:not(.relative) p")[7].TextContent.RemoveUpToColonAndTrim(),
+                Tutor = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[6].TextContent.RemoveUpToColonAndTrim(),
             };
             return information;
         }
@@ -261,7 +262,7 @@ namespace TUIT.LMS.API
         {
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
-            string csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
+            string? csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
 
             using var multipartFormContent = new MultipartFormDataContent();
 
@@ -287,6 +288,33 @@ namespace TUIT.LMS.API
             var responseText = await response.Content.ReadAsStringAsync();
 
             return responseText.Contains("true");
+        }
+
+        /// <summary>
+        /// Cnage LMS language
+        /// </summary>
+        /// <param name="language">ru, uzc, uzl, en, kar</param>
+        /// <returns></returns>
+        public async Task<bool> ChangeLanguageAsync(string language)
+        {
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/language");
+            string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
+
+            var content = new StringContent(string.Format(ChangeLanguageRequestFormat, _token, language));
+            content.Headers.ContentType = new("application/x-www-form-urlencoded");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/profile/language")
+            {
+                Content = content,
+            };
+
+            foreach (var pair in uploadRequestHeaders)
+            {
+                request.Headers.Add(pair.Key, pair.Value);
+            }
+
+            using var response = await _authService.SendAsync(request);
+            return response.IsSuccessStatusCode;
         }
     }
 }
