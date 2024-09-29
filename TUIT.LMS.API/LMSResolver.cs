@@ -28,6 +28,9 @@ namespace TUIT.LMS.API
 
         private readonly Dictionary<string, string> uploadRequestHeaders;
 
+        public delegate void TransferProgress(int percentage);
+        public event TransferProgress UploadProgressChanged;
+
         public LMSResolver(LMSAuthService authService)
         {
             _authService = authService;
@@ -266,7 +269,8 @@ namespace TUIT.LMS.API
 
             using var multipartFormContent = new MultipartFormDataContent();
 
-            var fileStreamContent = new StreamContent(File.OpenRead(filePath));
+            var fileStream = File.OpenRead(filePath);
+            var fileStreamContent = new StreamContent(fileStream);
             fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
 
             multipartFormContent.Add(new StringContent(uploadId.ToString()), name: "id");
@@ -284,9 +288,12 @@ namespace TUIT.LMS.API
 
             request.Headers.Add("X-CSRF-TOKEN", csrf_token);
 
+            bool isUploading = true;
+            new Task(() => TrackUpload(Stream.Synchronized(fileStream), ref isUploading)).Start();
             using var response = await _authService.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
 
+            isUploading = false;
             return responseText.Contains("true");
         }
 
@@ -315,6 +322,22 @@ namespace TUIT.LMS.API
 
             using var response = await _authService.SendAsync(request);
             return response.IsSuccessStatusCode;
+        }
+
+        private void TrackUpload(Stream stream, ref bool isUploading)
+        {
+            int prevPos = -1;
+            while (isUploading)
+            {
+                int pos = (int)Math.Round(100 * (stream.Position / (double)stream.Length));
+                if (pos != prevPos)
+                {
+                    UploadProgressChanged?.Invoke(pos);
+                }
+                prevPos = pos;
+
+                Thread.Sleep(100);
+            }
         }
     }
 }
