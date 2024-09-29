@@ -291,7 +291,7 @@ namespace TUIT.LMS.API
         }
 
         /// <summary>
-        /// Cnage LMS language
+        /// Change LMS language
         /// </summary>
         /// <param name="language">ru, uzc, uzl, en, kar</param>
         /// <returns></returns>
