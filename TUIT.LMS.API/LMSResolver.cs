@@ -23,6 +23,7 @@ namespace TUIT.LMS.API
         private const string AbsencesUrl = "https://lms.tuit.uz/student/attendance/data?semester_id=";
 
         private const string ChangeLanguageRequestFormat = "_token={0}&language={1}";
+        private const string ChangePasswordRequestFormat = "_token={0}&old_password={1}&password={2}&password_confirmation={3}";
 
         private LMSAuthService _authService;
 
@@ -311,6 +312,28 @@ namespace TUIT.LMS.API
             content.Headers.ContentType = new("application/x-www-form-urlencoded");
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/profile/language")
+            {
+                Content = content,
+            };
+
+            foreach (var pair in uploadRequestHeaders)
+            {
+                request.Headers.Add(pair.Key, pair.Value);
+            }
+
+            using var response = await _authService.SendAsync(request);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> ChangePasswordAsync(string oldPassword, string newPassword)
+        {
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/password");
+            string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
+
+            var content = new StringContent(string.Format(ChangePasswordRequestFormat, _token, oldPassword, newPassword, newPassword));
+            content.Headers.ContentType = new("application/x-www-form-urlencoded");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/profile/password")
             {
                 Content = content,
             };
