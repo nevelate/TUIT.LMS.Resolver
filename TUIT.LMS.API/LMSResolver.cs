@@ -225,7 +225,8 @@ namespace TUIT.LMS.API
 
             foreach (var option in document.QuerySelectorAll("select.js-semester option"))
             {
-                dictionary.Add(int.Parse(option.GetAttribute("value")), option.TextContent.Trim('\n', ' ', '\t'));
+                string semester = option.TextContent.Trim('\n', ' ', '\t');
+                dictionary.Add(int.Parse(option.GetAttribute("value")), Regex.Replace(semester, @"\s\s+", " "));
             }
 
             return dictionary;
