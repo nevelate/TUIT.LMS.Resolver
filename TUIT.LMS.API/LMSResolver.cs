@@ -299,6 +299,14 @@ namespace TUIT.LMS.API
             return responseText.Contains("true");
         }
 
+        public async Task<string?> GetAccountFullName()
+        {
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/dashboard/news");
+            var fullName = document.QuerySelector("ul.dropdown-menu > li > div")?.TextContent.Trim().ToLower();
+
+            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fullName);
+        }
+
         /// <summary>
         /// Change LMS language
         /// </summary>
