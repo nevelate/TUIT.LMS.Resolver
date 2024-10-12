@@ -1,8 +1,10 @@
 ﻿using AngleSharp.Browser;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -89,20 +91,27 @@ namespace TUIT.LMS.API
 
             var document = await _authService.GetHTMLAsync(newsUrl);
             List<News> news = new List<News>();
+            List<Task<IDocument>> htmlDocumentTasks = [];
 
             foreach (var column in document.QuerySelectorAll("div.row div.col-md-4 div.card.p"))
             {
                 var url = column.QuerySelector("div.d-flex a")?.GetAttribute("href");
-                var newsPage = await _authService.GetHTMLAsync(url);
-                var description = newsPage.QuerySelector("div.panel-body blockquote div")?.TextContent;
+                htmlDocumentTasks.Add(_authService.GetHTMLAsync(url));
+            }
+
+            var htmlDocuments = await Task.WhenAll(htmlDocumentTasks);
+
+            foreach (var newsPage in htmlDocuments)
+            {
                 news.Add(new()
                 {
-                    Title = column.QuerySelector("div.panel-body p")?.TextContent,
-                    Description = description,
-                    NewsDate = DateOnly.Parse(column.QuerySelector("div.d-flex p").TextContent.Replace(':', '.'))
+                    Title = newsPage.QuerySelector("h4.panel__title")?.TextContent,
+                    Description = newsPage.QuerySelector("div.panel-body blockquote div")?.TextContent,
+                    NewsDate = DateOnly.Parse(newsPage.QuerySelector("div.panel-body blockquote footer cite").TextContent.Replace('-', '.'))
                 }
                 );
             }
+
             return news;
         }
 
