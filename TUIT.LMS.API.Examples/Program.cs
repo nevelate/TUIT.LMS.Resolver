@@ -47,6 +47,8 @@ namespace TUIT.LMS.API.Examples
 
             var data = await resolver.GetAccountFullName();
 
+            var data2 = await resolver.GetLMSObjectsAsync<TableLesson>(43);
+
             Console.WriteLine("End");
         }
     }

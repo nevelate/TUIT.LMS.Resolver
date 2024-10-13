@@ -141,21 +141,28 @@ namespace TUIT.LMS.API
             return disciplines;
         }
 
-        public async Task<List<Lesson>> GetLessonsAsync(int courseId, bool isLecture)
+        public async Task<List<Lesson>> GetLessonsAsync(int courseId, LessonType lessonType)
         {
             var dateRegex = new Regex(@"\(.*\)");
 
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
             List<Lesson> lessons = new List<Lesson>();
 
-            foreach (var tr in document.QuerySelectorAll(isLecture ? "div#lecture tbody > tr" : "div#practise tbody > tr"))
+            string lessonTypeQuery = lessonType switch
+            {
+                LessonType.Lecture => "div#lecture tbody > tr",
+                LessonType.Practice => "div#practice tbody > tr",
+                LessonType.Laboratory => "div#lab tbody > tr"
+            };
+
+            foreach (var tr in document.QuerySelectorAll(lessonTypeQuery))
             {
                 var lesson = new Lesson
                 {
                     ThemeTitle = tr.QuerySelector("td p").TextContent,
                     ThemeNumber = int.Parse(tr.QuerySelectorAll("td")[0].TextContent),
                     LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty)),
-                    IsLecture = isLecture,
+                    LessonType = lessonType,
                 };
 
                 var attachments = new List<LMSFile>();
@@ -285,7 +292,7 @@ namespace TUIT.LMS.API
             fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
 
             multipartFormContent.Add(new StringContent(uploadId.ToString()), name: "id");
-            multipartFormContent.Add(fileStreamContent, name: "file", fileName: "M.pdf");
+            multipartFormContent.Add(fileStreamContent, name: "file", fileName: new FileInfo(filePath).Name);
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/student/my-courses/upload")
             {

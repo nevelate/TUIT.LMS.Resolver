@@ -11,8 +11,15 @@ namespace TUIT.LMS.API.LMSObjects
         public string? ThemeTitle { get; set; }
         public int ThemeNumber { get; set; }
         public DateOnly LessonDate { get; set; }
-        public bool IsLecture { get; set; }
+        public LessonType LessonType { get; set; }
 
         public List<LMSFile> Attachments { get; set; } = null!;
+    }
+
+    public enum LessonType
+    {
+        Lecture,
+        Practice, 
+        Laboratory
     }
 }
