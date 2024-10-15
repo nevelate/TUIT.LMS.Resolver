@@ -18,10 +18,10 @@ namespace TUIT.LMS.API
             return s.Trim('\n', ' ', '\t');
         }
 
-        public static int? ParseOrReturnNull(this string s)
+        public static float? ParseOrReturnNull(this string s)
         {
-            int result = 0;
-            if (int.TryParse(s, out result))
+            float result = 0;
+            if (float.TryParse(s.Replace('.', ','), out result))
             {
                 return result;
             }

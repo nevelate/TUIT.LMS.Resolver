@@ -8,9 +8,9 @@ namespace TUIT.LMS.API.LMSObjects
 {
     public class AssignmentsPage
     {
-        public int AchievedPoints { get; set; }
-        public int MaxPoints { get; set; }
-        public int Rating { get; set; }
+        public float AchievedPoints { get; set; }
+        public float MaxPoints { get; set; }
+        public float Rating { get; set; }
         public int Grade { get; set; }
 
         public List<Assignment> Assignments { get; set; } = null!;
@@ -25,8 +25,8 @@ namespace TUIT.LMS.API.LMSObjects
 
         public DateTime Deadline { get; set; }
 
-        public int? CurrentGrade { get; set; }
-        public int MaxGrade { get; set; }
+        public float? CurrentGrade { get; set; }
+        public float MaxGrade { get; set; }
 
         public int? UploadId { get; set; }
         public LMSFile? UploadedFile { get; set; }

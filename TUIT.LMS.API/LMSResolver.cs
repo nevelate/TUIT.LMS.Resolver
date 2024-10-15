@@ -186,9 +186,9 @@ namespace TUIT.LMS.API
 
             AssignmentsPage assignmentsPage = new AssignmentsPage()
             {
-                AchievedPoints = int.Parse(document.QuerySelectorAll("tbody tr td h4")[0].TextContent),
-                MaxPoints = int.Parse(document.QuerySelectorAll("tbody tr td h4")[1].TextContent),
-                Rating = int.Parse(document.QuerySelectorAll("tbody tr td h4")[2].TextContent.Replace("%", "")),
+                AchievedPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[0].TextContent.Replace('.', ',')),
+                MaxPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[1].TextContent),
+                Rating = float.Parse(document.QuerySelectorAll("tbody tr td h4")[2].TextContent.Replace("%", "")),
                 Grade = int.Parse(document.QuerySelectorAll("tbody tr td h4")[3].TextContent),
             };
 
@@ -202,7 +202,7 @@ namespace TUIT.LMS.API
                     TaskName = tr.QuerySelector("td div p").TextContent,
                     Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, new CultureInfo("ru-RU")),
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
-                    MaxGrade = int.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
+                    MaxGrade = float.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
 
                 assignment.TaskFile = new(
@@ -218,7 +218,7 @@ namespace TUIT.LMS.API
                     }
                     else
                     {
-                        assignment.UploadId = tr.QuerySelector("td div button.js-btn-upload")?.GetAttribute("data-id").ParseOrReturnNull();
+                        assignment.UploadId = (int?)tr.QuerySelector("td div button.js-btn-upload")?.GetAttribute("data-id").ParseOrReturnNull();
 
                         assignment.UploadedFile = new(
                             fileName: tr.QuerySelector("td > a").TextContent.Trim('\n', ' ', '\t'),

@@ -45,9 +45,7 @@ namespace TUIT.LMS.API.Examples
             await authService.TryLoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
             LMSResolver resolver = new LMSResolver(authService);
 
-            var data = await resolver.GetAccountFullName();
-
-            var data2 = await resolver.GetLMSObjectsAsync<TableLesson>(43);
+            var data = await resolver.GetAssignmentsPageAsync(19723);
 
             Console.WriteLine("End");
         }
