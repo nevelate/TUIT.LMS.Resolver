@@ -188,7 +188,7 @@ namespace TUIT.LMS.API
             {
                 AchievedPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[0].TextContent.Replace('.', ',')),
                 MaxPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[1].TextContent),
-                Rating = float.Parse(document.QuerySelectorAll("tbody tr td h4")[2].TextContent.Replace("%", "")),
+                Rating = float.Parse(document.QuerySelectorAll("tbody tr td h4")[2].TextContent.Replace("%", "").Replace('.', ',')),
                 Grade = int.Parse(document.QuerySelectorAll("tbody tr td h4")[3].TextContent),
             };
 
