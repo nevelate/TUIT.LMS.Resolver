@@ -14,12 +14,5 @@ namespace TUIT.LMS.API.LMSObjects
         public LessonType LessonType { get; set; }
 
         public List<LMSFile> Attachments { get; set; } = null!;
-    }
-
-    public enum LessonType
-    {
-        Lecture,
-        Practice, 
-        Laboratory
-    }
+    }    
 }

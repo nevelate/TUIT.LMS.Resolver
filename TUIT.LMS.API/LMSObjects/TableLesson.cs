@@ -48,12 +48,5 @@ namespace TUIT.LMS.API.LMSObjects
             Stream = StreamRegex.Match(title).Value;
             Room = RoomRegex.Match(title).Value;
         }
-    }
-
-    public enum TableLessonType
-    {
-        full = 1,
-        left,
-        right,
-    }
+    }    
 }

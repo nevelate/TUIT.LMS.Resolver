@@ -249,11 +249,13 @@ namespace TUIT.LMS.API
         }
 
         /// <summary>
-        /// Get Courses, Absences, TableLessons, Finals 
+        /// Get <see cref="Course">Course</see>,
+        /// <see cref="Absence">Absence</see>,
+        /// <see cref="TableLesson">TableLesson</see> or
+        /// <see cref="Final">Final</see> 
         /// </summary>
-        /// <param name="url">Constants of this class</param>
-        /// <param name="semesterId"></param>
-        /// <returns></returns>
+        /// <param name="semesterId">Semester Id</param>
+        /// <returns>LMSObject List</returns>
         public async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId)
         {
             string url = typeof(T).Name switch
