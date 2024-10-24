@@ -18,6 +18,12 @@ namespace TUIT.LMS.API
             return s.Trim('\n', ' ', '\t');
         }
 
+        public static string RemoveFileExtension(this string s)
+        {
+            int dotIndex = s.LastIndexOf('.');
+            return s.Remove(dotIndex);
+        }
+
         public static float? ParseOrReturnNull(this string s)
         {
             float result = 0;

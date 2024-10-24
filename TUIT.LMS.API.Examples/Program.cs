@@ -45,9 +45,16 @@ namespace TUIT.LMS.API.Examples
             await authService.TryLoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
             LMSResolver resolver = new LMSResolver(authService);
 
-            var data = await resolver.GetLMSObjectsAsync<Course>(43);
+            resolver.ProgressChangedEvent += Resolver_ProgressChangedEvent;
+
+            await resolver.UploadFileAsync("D:\\PP6a.pdf", 19822, 96449);
 
             Console.WriteLine("End");
+        }
+
+        private static void Resolver_ProgressChangedEvent(long bytes, long currentBytes, long totalBytes)
+        {
+            Console.WriteLine((float)currentBytes / totalBytes * 100);
         }
     }
 }

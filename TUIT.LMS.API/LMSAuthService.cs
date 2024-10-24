@@ -79,20 +79,20 @@ namespace TUIT.LMS.API
 
         public async Task<IDocument> GetHTMLAsync(string? requestUri)
         {
-            if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
             var responseAsString = await _httpClient.GetStringAsync(requestUri);
             return await _htmlParser.ParseDocumentAsync(responseAsString);
         }
 
         public async Task<string> GetStringAsync(string? requestUri)
         {
-            if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
             return await _httpClient.GetStringAsync(requestUri);
         }
 
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
+            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
             return await _httpClient.SendAsync(request);
         }
     }
