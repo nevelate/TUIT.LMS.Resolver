@@ -47,7 +47,7 @@ namespace TUIT.LMS.API.Examples
 
             resolver.ProgressChangedEvent += Resolver_ProgressChangedEvent;
 
-            await resolver.UploadFileAsync("D:\\PP6a.pdf", 19822, 96449);
+            await resolver.UploadFileAsync(new FileStream("D:\\PP6a.pdf", FileMode.Open), "PP6a.pdf", 19822, 96449);
 
             Console.WriteLine("End");
         }

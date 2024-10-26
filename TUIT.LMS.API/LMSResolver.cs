@@ -31,8 +31,6 @@ namespace TUIT.LMS.API
 
         private readonly Dictionary<string, string> uploadRequestHeaders;
 
-        public event ProgressHandler ProgressChangedEvent;
-
         public LMSResolver(LMSAuthService authService)
         {
             _authService = authService;
@@ -288,9 +286,7 @@ namespace TUIT.LMS.API
 
             using var multipartFormContent = new MultipartFormDataContent();
 
-            var fileStream = File.OpenRead(filePath);
-            var fileStreamContent = new ProgressStreamContent(fileStream);
-            fileStreamContent.ProgressChanged += FileStreamContent_ProgressChanged;
+            var fileStreamContent = new StreamContent(File.OpenRead(filePath));
 
             fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
 
@@ -315,9 +311,37 @@ namespace TUIT.LMS.API
             return response.IsSuccessStatusCode;
         }
 
-        private void FileStreamContent_ProgressChanged(long bytes, long currentBytes, long totalBytes)
+        public async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId)
         {
-            ProgressChangedEvent?.Invoke(bytes, currentBytes, totalBytes);
+            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+
+            string? csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
+
+            using var multipartFormContent = new MultipartFormDataContent();
+
+            var fileStreamContent = new StreamContent(stream);
+
+            fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
+
+            multipartFormContent.Add(new StringContent(uploadId.ToString()), name: "id");
+            multipartFormContent.Add(fileStreamContent, name: "file", fileName: fileName);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/student/my-courses/upload")
+            {
+                Content = multipartFormContent,
+            };
+
+            foreach (var pair in uploadRequestHeaders)
+            {
+                request.Headers.Add(pair.Key, pair.Value);
+            }
+
+            request.Headers.Add("X-CSRF-TOKEN", csrf_token);
+
+            using var response = await _authService.SendAsync(request);
+            var responseText = await response.Content.ReadAsStringAsync();
+
+            return response.IsSuccessStatusCode;
         }
 
         public async Task<string?> GetAccountFullName()
