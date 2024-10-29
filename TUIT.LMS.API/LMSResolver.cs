@@ -352,6 +352,24 @@ namespace TUIT.LMS.API
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fullName);
         }
 
+        public async Task<TableLessonType> GetLessonSideAsync(int semesterId)
+        {
+            var getTableLessonsAsync = GetLMSObjectsAsync<TableLesson>(semesterId);
+            var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
+
+            TableLesson tableLesson = (await getTableLessonsAsync).First(t => t.TableLessonType == TableLessonType.left);
+            Course course = (await getCoursesAsync).First(c => c.Streams.Contains(tableLesson.Stream));
+
+            List<Lesson> lessons = await GetLessonsAsync(course.Id, tableLesson.LessonType);
+
+            if (lessons.Any(l => l.LessonDate == DateOnly.FromDateTime(tableLesson.StartTime)))
+            {
+                return TableLessonType.left;
+            }
+
+            return TableLessonType.right;
+        }
+
         /// <summary>
         /// Change LMS language
         /// </summary>
