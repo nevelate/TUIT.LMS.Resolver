@@ -201,9 +201,9 @@ namespace TUIT.LMS.API
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = float.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
-
+                 
                 assignment.TaskFile = new(
-                    fileName: tr.QuerySelector("td div a").TextContent.Trim('\n', ' ', '\t'),
+                    fileName: tr.QuerySelector("td div a").TextContent.Trim('\n', ' ', '\t').RemoveFileExtension(),
                     fileUrl: tr.QuerySelector("td div a").GetAttribute("href")
                     );
 
@@ -280,9 +280,8 @@ namespace TUIT.LMS.API
 
         public async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId)
         {
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
-            string? csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
 
             using var multipartFormContent = new MultipartFormDataContent();
 
@@ -303,19 +302,18 @@ namespace TUIT.LMS.API
                 request.Headers.Add(pair.Key, pair.Value);
             }
 
+            string? csrf_token = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
             request.Headers.Add("X-CSRF-TOKEN", csrf_token);
 
             using var response = await _authService.SendAsync(request);
-            var responseText = await response.Content.ReadAsStringAsync();
 
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId)
         {
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
-            string? csrf_token = document.GetElementsByName("csrf-token")[0].GetAttribute("content");
 
             using var multipartFormContent = new MultipartFormDataContent();
 
@@ -336,6 +334,7 @@ namespace TUIT.LMS.API
                 request.Headers.Add(pair.Key, pair.Value);
             }
 
+            string? csrf_token = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
             request.Headers.Add("X-CSRF-TOKEN", csrf_token);
 
             using var response = await _authService.SendAsync(request);
@@ -357,7 +356,7 @@ namespace TUIT.LMS.API
             var getTableLessonsAsync = GetLMSObjectsAsync<TableLesson>(semesterId);
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
-            TableLesson tableLesson = (await getTableLessonsAsync).First(t => t.TableLessonType == TableLessonType.left);
+            TableLesson tableLesson = (await getTableLessonsAsync).Last(t => t.TableLessonType == TableLessonType.left);
             Course course = (await getCoursesAsync).First(c => c.Streams.Contains(tableLesson.Stream));
 
             List<Lesson> lessons = await GetLessonsAsync(course.Id, tableLesson.LessonType);
