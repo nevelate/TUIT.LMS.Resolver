@@ -71,6 +71,20 @@ namespace TUIT.LMS.API
             return responseAsString.Contains("Dashboard");
         }
 
+        public void LogOut()
+        {
+            _httpClientHandler.Dispose();
+            _httpClient.Dispose();
+
+            _cookieContainer = new CookieContainer();
+
+            _httpClientHandler = new HttpClientHandler
+            {
+                CookieContainer = _cookieContainer,
+            };
+            _httpClient = new HttpClient(_httpClientHandler);
+        }
+
         public async Task<bool> CheckIfNeededReLogin()
         {
             var response = await _httpClient.GetStringAsync("https://lms.tuit.uz");
