@@ -356,7 +356,19 @@ namespace TUIT.LMS.API
             var getTableLessonsAsync = GetLMSObjectsAsync<TableLesson>(semesterId);
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
-            TableLesson tableLesson = (await getTableLessonsAsync).Last(t => t.TableLessonType == TableLessonType.left);
+            TableLesson tableLesson;
+            int index = 0;
+            var tableLessons = await getTableLessonsAsync;
+            do
+            {
+                tableLesson = tableLessons.Where(t => t.TableLessonType == TableLessonType.left).ElementAt(index);
+                index++;
+            }
+            while (tableLessons.Any(t => 
+            {
+                return t.LessonDay == tableLesson.LessonDay && t.Stream == tableLesson.Stream && t.TableLessonType != tableLesson.TableLessonType;
+            }));
+
             Course course = (await getCoursesAsync).First(c => c.Streams.Contains(tableLesson.Stream));
 
             List<Lesson> lessons = await GetLessonsAsync(course.Id, tableLesson.LessonType);
