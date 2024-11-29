@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TUIT.LMS.API
+namespace TUIT.LMS.Resolver
 {
     public enum TableLessonType
     {

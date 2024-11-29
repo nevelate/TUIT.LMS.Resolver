@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TUIT.LMS.API.JsonConverters
+namespace TUIT.LMS.Resolver.JsonConverters
 {
     internal class DateOnlyConverter : JsonConverter
     {

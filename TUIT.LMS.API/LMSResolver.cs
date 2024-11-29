@@ -13,9 +13,9 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TUIT.LMS.API.LMSObjects;
+using TUIT.LMS.Resolver.LMSObjects;
 
-namespace TUIT.LMS.API
+namespace TUIT.LMS.Resolver
 {
     public class LMSResolver
     {

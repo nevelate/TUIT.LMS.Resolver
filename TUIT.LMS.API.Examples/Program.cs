@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TUIT.LMS.API.LMSObjects;
+using TUIT.LMS.Resolver.LMSObjects;
 
-namespace TUIT.LMS.API.Examples
+namespace TUIT.LMS.Resolver.Examples
 {
     internal class Program
     {

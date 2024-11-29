@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace TUIT.LMS.API
+namespace TUIT.LMS.Resolver
 {
     internal static class Extensions
     {

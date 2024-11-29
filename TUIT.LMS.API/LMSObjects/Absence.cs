@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TUIT.LMS.API.JsonConverters;
+using TUIT.LMS.Resolver.JsonConverters;
 
-namespace TUIT.LMS.API.LMSObjects
+namespace TUIT.LMS.Resolver.LMSObjects
 {
     public class Absence
     {

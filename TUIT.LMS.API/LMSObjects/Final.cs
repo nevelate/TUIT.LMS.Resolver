@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
-using TUIT.LMS.API.JsonConverters;
+using TUIT.LMS.Resolver.JsonConverters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TUIT.LMS.API.LMSObjects
+namespace TUIT.LMS.Resolver.LMSObjects
 {
     public class Final
     {

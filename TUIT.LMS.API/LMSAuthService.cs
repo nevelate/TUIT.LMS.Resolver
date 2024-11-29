@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 
-namespace TUIT.LMS.API
+namespace TUIT.LMS.Resolver
 {
     public class LMSAuthService
     {
