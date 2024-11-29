@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TUIT.LMS.API\TUIT.LMS.Resolver.csproj" />
+    <ProjectReference Include="..\TUIT.LMS.Resolver\TUIT.LMS.Resolver.csproj" />
   </ItemGroup>
 
 </Project>
