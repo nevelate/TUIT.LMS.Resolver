@@ -85,28 +85,25 @@ namespace TUIT.LMS.Resolver
             _httpClient = new HttpClient(_httpClientHandler);
         }
 
-        public async Task<bool> CheckIfNeededReLogin()
+        public async Task CheckIfNeededReLogin()
         {
             var response = await _httpClient.GetStringAsync("https://lms.tuit.uz");
-            return response.Contains("Dashboard");
+            if (!response.Contains("Dashboard")) LoginRequested?.Invoke();
         }
 
         public async Task<IDocument> GetHTMLAsync(string? requestUri)
-        {
-            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
+        {            
             var responseAsString = await _httpClient.GetStringAsync(requestUri);
             return await _htmlParser.ParseDocumentAsync(responseAsString);
         }
 
         public async Task<string> GetStringAsync(string? requestUri)
         {
-            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
             return await _httpClient.GetStringAsync(requestUri);
         }
 
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            //if (await CheckIfNeededReLogin()) LoginRequested?.Invoke();
             return await _httpClient.SendAsync(request);
         }
     }
