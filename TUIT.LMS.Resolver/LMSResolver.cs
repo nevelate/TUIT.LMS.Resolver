@@ -206,11 +206,14 @@ namespace TUIT.LMS.Resolver
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = float.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
-                 
-                assignment.TaskFile = new(
-                    fileName: tr.QuerySelector("td div a").TextContent.Trim('\n', ' ', '\t').RemoveFileExtension(),
-                    fileUrl: tr.QuerySelector("td div a").GetAttribute("href")
-                    );
+
+                if (!string.IsNullOrWhiteSpace(tr.QuerySelector("td div a").TextContent))
+                {
+                    assignment.TaskFile = new(
+                        fileName: tr.QuerySelector("td div a").TextContent.Trim('\n', ' ', '\t').RemoveFileExtension(),
+                        fileUrl: tr.QuerySelector("td div a").GetAttribute("href")
+                        );
+                }
 
                 if (tr.QuerySelector("td > a") != null)
                 {
