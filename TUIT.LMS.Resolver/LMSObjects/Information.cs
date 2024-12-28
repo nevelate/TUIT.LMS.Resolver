@@ -10,6 +10,7 @@ namespace TUIT.LMS.Resolver.LMSObjects
     {
         public string? FullName { get; set; }
         public DateOnly BirthDate { get; set; }
+        public string? Gender { get; set; }
 
         public string? StudentNumber { get; set; }
         public string? Group { get; set; }
@@ -24,6 +25,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
         public string? StudyLanguage { get; set; }
         public string? Degree { get; set; }
         public string? TypeOfStudy { get; set; }
-        public int Year { get; set; }        
+        public int Year { get; set; }
+
+        public string? Stipend { get; set; }
     }
 }

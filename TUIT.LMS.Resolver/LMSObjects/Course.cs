@@ -12,8 +12,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
     public class Course
     {
 
-        private Regex isLectureRegex = new(@"\d\d\d$");
-        private Regex isLaboratoryRegex = new(@"\-\w\d$");
+        private static Regex isLectureRegex = new(@"\d\d\d$");
+        private static Regex isLaboratoryRegex = new(@"\-\w\d$");
 
         public int Id { get; set; }
 

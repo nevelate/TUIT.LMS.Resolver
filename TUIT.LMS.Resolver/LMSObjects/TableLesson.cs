@@ -10,11 +10,11 @@ namespace TUIT.LMS.Resolver.LMSObjects
 {
     public class TableLesson
     {
-        private Regex isLectureRegex = new(@"\d\d\d$");
-        private Regex isLaboratoryRegex = new(@"\-\w\d$");
-        private Regex SubjectRegex = new(@"\)\D+-");
-        private Regex StreamRegex = new(@"\D\D\D\d+-*\w*$");
-        private Regex RoomRegex = new(@"\D-\d+");
+        private static Regex isLectureRegex = new(@"\d\d\d$");
+        private static Regex isLaboratoryRegex = new(@"\-\w\d$");
+        private static Regex SubjectRegex = new(@"\)\D+-");
+        private static Regex StreamRegex = new(@"\D\D\D\d+-*\w*$");
+        private static Regex RoomRegex = new(@"\D-\d+");
 
         public DateTime StartTime { get; set; }
 

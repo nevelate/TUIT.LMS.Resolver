@@ -61,6 +61,7 @@ namespace TUIT.LMS.Resolver
             {
                 FullName = document.QuerySelectorAll("div.card.relative p.m-b-xs")[0].TextContent.RemoveUpToColonAndTrim(),
                 BirthDate = DateOnly.Parse(document.QuerySelectorAll("div.card.relative p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(), new CultureInfo("ru-RU")),
+                Gender = document.QuerySelectorAll("div.card.relative p.m-b-xs")[2].TextContent.RemoveUpToColonAndTrim(),
                 StudentNumber = document.QuerySelectorAll("div.card.relative p.m-b-xs")[3].TextContent.RemoveUpToColonAndTrim(),
 
                 Address = document.QuerySelectorAll("div.card.relative p.m-b-xs")[4].TextContent.RemoveUpToColonAndTrim(),
@@ -75,6 +76,7 @@ namespace TUIT.LMS.Resolver
                 Year = int.Parse(document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[4].TextContent.RemoveUpToColonAndTrim()),
                 Group = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[5].TextContent.RemoveUpToColonAndTrim(),
                 Tutor = document.QuerySelectorAll("div.card:not(.relative) p.m-b-xs")[6].TextContent.RemoveUpToColonAndTrim(),
+                Stipend = document.QuerySelectorAll("div.card:not(.relative) p")[7].TextContent.RemoveUpToColonAndTrim(),
             };
             return information;
         }
