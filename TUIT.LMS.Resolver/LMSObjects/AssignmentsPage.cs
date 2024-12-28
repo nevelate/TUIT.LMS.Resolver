@@ -30,5 +30,7 @@ namespace TUIT.LMS.Resolver.LMSObjects
 
         public int? UploadId { get; set; }
         public LMSFile? UploadedFile { get; set; }
+
+        public bool IsFailed { get; set; }
     }
 }

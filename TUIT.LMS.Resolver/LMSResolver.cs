@@ -232,6 +232,8 @@ namespace TUIT.LMS.Resolver
                     }
                 }
 
+                assignment.IsFailed = tr.QuerySelector("td > span") != null;
+
                 assignments.Add(assignment);
             }
             assignmentsPage.Assignments = assignments;
