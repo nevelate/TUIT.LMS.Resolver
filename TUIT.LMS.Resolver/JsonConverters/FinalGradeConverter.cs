@@ -11,13 +11,13 @@ namespace TUIT.LMS.Resolver.JsonConverters
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(string);
+            return true;
         }
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            if (int.TryParse(reader.Value as string, out int value)) return value;
-            else return null;
+            if (reader.Value is long value) return (int?)value;
+            return null;
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
