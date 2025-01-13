@@ -15,7 +15,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
         public int SubjectId { get; set; }
 
         [JsonProperty("f_grade")]
-        public int Grade { get; set; }
+        [JsonConverter(typeof(FinalGradeConverter))]
+        public int? Grade { get; set; }
 
         public string? Stream { get; set; }
         public string? Room { get; set; }
