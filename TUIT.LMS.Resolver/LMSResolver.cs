@@ -400,7 +400,7 @@ namespace TUIT.LMS.Resolver
         /// <summary>
         /// Change LMS language
         /// </summary>
-        /// <param name="language">ru, uzc, uzl, en, kar</param>
+        /// <param name="language">use <see cref="Languages">Languages</see> constants</param>
         /// <returns></returns>
         public async Task<bool> ChangeLanguageAsync(string language)
         {
