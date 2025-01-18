@@ -37,7 +37,7 @@ enum LessonType
 
 async Task<AssignmentsPage> GetAssignmentsPageAsync(int courseId); // get assignments (deadlines) page
 async Task<Dictionary<int, string>> GetSemesterIdsAsync(); // get semester Ids with their names
-async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId); get Course, Absence, TableLesson or Final
+async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId); // get Course, Absence, TableLesson or Final
 async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId); // upload deadline
 async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId); // upload file (using stream)
 async Task<string?> GetAccountFullName(); // get normalized account full name
@@ -51,6 +51,7 @@ public enum TableLessonType
 }
 
 async Task<bool> ChangeLanguageAsync(string language); // change LMS language
+
 //You can use constants from Languages class
 public static class Languages
 {
