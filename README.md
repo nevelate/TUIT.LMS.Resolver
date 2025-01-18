@@ -21,7 +21,7 @@ void LogOut(); // log out from account
 CheckIfNeededReLogin(); // fires LoginRequested if needed relogin
 ```
 
-### LMSResoler
+### LMSResolver
 ```csharp
 async Task<Information> GetInformationAsync(); // get student information
 async Task<List<News>> GetNewsAsync(int page = 1); // get news from dashboard page
