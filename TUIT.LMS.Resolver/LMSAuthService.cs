@@ -97,6 +97,11 @@ namespace TUIT.LMS.Resolver
             return await _htmlParser.ParseDocumentAsync(responseAsString);
         }
 
+        public async Task<Stream> GetStreamAsync(string? requestUri)
+        {
+            return await _httpClient.GetStreamAsync(requestUri);
+        }
+
         public async Task<string> GetStringAsync(string? requestUri)
         {
             return await _httpClient.GetStringAsync(requestUri);

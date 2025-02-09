@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Browser;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -277,9 +278,7 @@ namespace TUIT.LMS.Resolver
                 "Final" => FinalsUrl,
             };
 
-            string data = await _authService.GetStringAsync(url + semesterId);
-
-            JObject jObject = JObject.Parse(data);
+            JObject jObject = JObject.Parse(await _authService.GetStringAsync(url + semesterId));
             List<JToken> results = jObject[typeof(T) == typeof(TableLesson) ? "json" : "data"].Children().ToList();
 
             List<T> list = new List<T>();
@@ -375,6 +374,9 @@ namespace TUIT.LMS.Resolver
             TableLesson tableLesson;
             int index = 0;
             var tableLessons = await getTableLessonsAsync;
+
+            if (!tableLessons.Any()) return TableLessonType.right;
+
             do
             {
                 tableLesson = tableLessons.Where(t => t.TableLessonType == TableLessonType.left).ElementAt(index);
