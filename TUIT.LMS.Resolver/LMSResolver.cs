@@ -184,12 +184,12 @@ namespace TUIT.LMS.Resolver
             return lessons;
         }
 
-        public async Task<AssignmentsPage> GetAssignmentsPageAsync(int courseId)
+        public async Task<AssignmentsPage?> GetAssignmentsPageAsync(int courseId)
         {
             await _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
-            if (document.QuerySelector("div.page-inner > div.panel") == null) return new AssignmentsPage() { Assignments = [] };
+            if (document.QuerySelector("div.page-inner > div.panel") == null) return null;
 
             AssignmentsPage assignmentsPage = new AssignmentsPage()
             {
