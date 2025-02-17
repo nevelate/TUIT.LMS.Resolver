@@ -371,16 +371,28 @@ namespace TUIT.LMS.Resolver
             var getTableLessonsAsync = GetLMSObjectsAsync<TableLesson>(semesterId);
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
-            TableLesson tableLesson;
+            TableLesson tableLesson = new TableLesson();
             int index = 0;
             var tableLessons = await getTableLessonsAsync;
+
+            var preferredTableLessonType = TableLessonType.left;
 
             if (!tableLessons.Any()) return TableLessonType.right;
 
             do
             {
-                tableLesson = tableLessons.Where(t => t.TableLessonType == TableLessonType.left).ElementAt(index);
-                index++;
+                try
+                {
+                    tableLesson = tableLessons.Where(t => t.TableLessonType == preferredTableLessonType).ElementAt(index);
+                    index++;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    index = 0;
+                    preferredTableLessonType = TableLessonType.right;
+                    tableLesson = tableLessons.Where(t => t.TableLessonType == preferredTableLessonType).ElementAt(index);
+                    index++;
+                }
             }
             while (tableLessons.Any(t => 
             {
@@ -393,10 +405,10 @@ namespace TUIT.LMS.Resolver
 
             if (lessons.Any(l => l.LessonDate == DateOnly.FromDateTime(tableLesson.StartTime)))
             {
-                return TableLessonType.left;
+                return tableLesson.TableLessonType;
             }
 
-            return TableLessonType.right;
+            return tableLesson.TableLessonType == TableLessonType.left ? TableLessonType.right : TableLessonType.left;
         }
 
         /// <summary>
