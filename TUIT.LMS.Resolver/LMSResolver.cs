@@ -189,6 +189,8 @@ namespace TUIT.LMS.Resolver
             await _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
+            if (document.QuerySelector("div.page-inner > div.panel") == null) return new AssignmentsPage() { Assignments = [] };
+
             AssignmentsPage assignmentsPage = new AssignmentsPage()
             {
                 AchievedPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[0].TextContent.Replace('.', ',')),
@@ -394,7 +396,7 @@ namespace TUIT.LMS.Resolver
                     index++;
                 }
             }
-            while (tableLessons.Any(t => 
+            while (tableLessons.Any(t =>
             {
                 return t.LessonDay == tableLesson.LessonDay && t.Stream == tableLesson.Stream && t.TableLessonType != tableLesson.TableLessonType;
             }));
