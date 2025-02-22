@@ -367,50 +367,38 @@ namespace TUIT.LMS.Resolver
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fullName);
         }
 
-        public async Task<TableLessonType> GetLessonSideAsync(int semesterId)
+        public async Task<TableLessonType> GetLessonSideAsync(int semesterId, TableLessonType firstWeekTableLessonSide = TableLessonType.left)
         {
             await _authService.CheckIfNeededReLogin();
-            var getTableLessonsAsync = GetLMSObjectsAsync<TableLesson>(semesterId);
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
-            TableLesson tableLesson = new TableLesson();
-            int index = 0;
-            var tableLessons = await getTableLessonsAsync;
+            List<Task<List<Lesson>>> getLessonsAsync = [];
 
-            var preferredTableLessonType = TableLessonType.left;
-
-            if (!tableLessons.Any()) return TableLessonType.right;
-
-            do
+            foreach (var course in await getCoursesAsync)
             {
-                try
-                {
-                    tableLesson = tableLessons.Where(t => t.TableLessonType == preferredTableLessonType).ElementAt(index);
-                    index++;
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    index = 0;
-                    preferredTableLessonType = TableLessonType.right;
-                    tableLesson = tableLessons.Where(t => t.TableLessonType == preferredTableLessonType).ElementAt(index);
-                    index++;
-                }
-            }
-            while (tableLessons.Any(t =>
-            {
-                return t.LessonDay == tableLesson.LessonDay && t.Stream == tableLesson.Stream && t.TableLessonType != tableLesson.TableLessonType;
-            }));
-
-            Course course = (await getCoursesAsync).First(c => c.Streams.Contains(tableLesson.Stream));
-
-            List<Lesson> lessons = await GetLessonsAsync(course.Id, tableLesson.LessonType);
-
-            if (lessons.Any(l => l.LessonDate == DateOnly.FromDateTime(tableLesson.StartTime)))
-            {
-                return tableLesson.TableLessonType;
+                getLessonsAsync.Add(GetLessonsAsync(course.Id, LessonType.Lecture));
             }
 
-            return tableLesson.TableLessonType == TableLessonType.left ? TableLessonType.right : TableLessonType.left;
+            var lessons = (await Task.WhenAll(getLessonsAsync)).SelectMany(l => l);
+
+            DateTime firstLessonDate = DateTime.MinValue;
+
+            try
+            {
+                firstLessonDate = lessons.Select(l => l.LessonDate).Min().ToDateTime(new TimeOnly());
+            }
+            catch
+            {
+                return firstWeekTableLessonSide;
+            }
+
+            var calendar = new GregorianCalendar();
+
+            return (calendar.GetWeekOfYear(firstLessonDate, CalendarWeekRule.FirstDay, DayOfWeek.Monday) % 2 == calendar.GetWeekOfYear(DateTime.Today, CalendarWeekRule.FirstDay, DayOfWeek.Monday) % 2)
+                ?
+                firstWeekTableLessonSide
+                :
+                (firstWeekTableLessonSide == TableLessonType.left ? TableLessonType.right : TableLessonType.left);
         }
 
         /// <summary>
