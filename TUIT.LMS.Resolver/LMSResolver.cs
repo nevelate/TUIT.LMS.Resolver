@@ -372,14 +372,15 @@ namespace TUIT.LMS.Resolver
             await _authService.CheckIfNeededReLogin();
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
-            List<Task<List<Lesson>>> getLessonsAsync = [];
+            var courses = await getCoursesAsync;
+            int index = 0;
+            var lessons = new List<Lesson>();
 
-            foreach (var course in await getCoursesAsync)
+            do
             {
-                getLessonsAsync.Add(GetLessonsAsync(course.Id, LessonType.Lecture));
+                lessons = await GetLessonsAsync(courses[index].Id, LessonType.Lecture);
             }
-
-            var lessons = (await Task.WhenAll(getLessonsAsync)).SelectMany(l => l);
+            while (index < courses.Count && !lessons.Any());            
 
             DateTime firstLessonDate = DateTime.MinValue;
 

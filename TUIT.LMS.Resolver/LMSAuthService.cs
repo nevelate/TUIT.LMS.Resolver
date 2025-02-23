@@ -28,8 +28,12 @@ namespace TUIT.LMS.Resolver
             _httpClientHandler = new HttpClientHandler
             {
                 CookieContainer = _cookieContainer,
+                AutomaticDecompression = DecompressionMethods.GZip,
+                Proxy = null,
+                UseProxy = false,
+                MaxConnectionsPerServer = 10,
             };
-            _httpClient = new HttpClient(_httpClientHandler);
+            _httpClient = new HttpClient(_httpClientHandler) { Timeout = new TimeSpan(0, 0, 30) };
 
             _htmlParser = new HtmlParser();
 
