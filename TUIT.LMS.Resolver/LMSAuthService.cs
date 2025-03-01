@@ -89,10 +89,10 @@ namespace TUIT.LMS.Resolver
             _httpClient = new HttpClient(_httpClientHandler);
         }
 
-        public async Task CheckIfNeededReLogin()
+        public void CheckIfNeededReLogin()
         {
-            var response = await _httpClient.GetStringAsync("https://lms.tuit.uz");
-            if (!response.Contains("Dashboard")) LoginRequested?.Invoke();
+            var cookies = _cookieContainer.GetCookies(new Uri("https://lms.tuit.uz"));
+            if (cookies.Any(c => c.Expired)) LoginRequested?.Invoke();
         }
 
         public async Task<IDocument> GetHTMLAsync(string? requestUri)

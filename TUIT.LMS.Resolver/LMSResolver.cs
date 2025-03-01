@@ -56,7 +56,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<Information> GetInformationAsync()
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/info");
             var information = new Information()
             {
@@ -84,7 +84,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<List<News>> GetNewsAsync(int page = 1)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var newsUrl = page switch
             {
                 1 => "https://lms.tuit.uz/dashboard/news",
@@ -119,7 +119,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<List<Discipline>> GetDisciplinesAsync()
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/study-plan");
 
             List<Discipline> disciplines = new List<Discipline>();
@@ -146,7 +146,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<List<Lesson>> GetLessonsAsync(int courseId, LessonType lessonType)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var dateRegex = new Regex(@"\(.*\)");
 
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
@@ -186,7 +186,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<AssignmentsPage?> GetAssignmentsPageAsync(int courseId)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             if (document.QuerySelector("div.page-inner > div.panel") == null) return null;
@@ -248,7 +248,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<Dictionary<int, string>> GetSemesterIdsAsync()
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses");
             Dictionary<int, string> dictionary = new Dictionary<int, string>();
 
@@ -271,7 +271,7 @@ namespace TUIT.LMS.Resolver
         /// <returns>LMSObject List</returns>
         public async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             string url = typeof(T).Name switch
             {
                 "Course" => MyCoursesUrl,
@@ -295,7 +295,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             using var multipartFormContent = new MultipartFormDataContent();
@@ -327,7 +327,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             using var multipartFormContent = new MultipartFormDataContent();
@@ -360,7 +360,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<string?> GetAccountFullName()
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/dashboard/news");
             var fullName = document.QuerySelector("ul.dropdown-menu > li > div")?.TextContent.Trim().ToLower();
 
@@ -369,7 +369,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<TableLessonType> GetLessonSideAsync(int semesterId, TableLessonType firstWeekTableLessonSide = TableLessonType.left)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
 
             var courses = await getCoursesAsync;
@@ -409,7 +409,7 @@ namespace TUIT.LMS.Resolver
         /// <returns></returns>
         public async Task<bool> ChangeLanguageAsync(string language)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/language");
             string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
 
@@ -432,7 +432,7 @@ namespace TUIT.LMS.Resolver
 
         public async Task<bool> ChangePasswordAsync(string oldPassword, string newPassword)
         {
-            await _authService.CheckIfNeededReLogin();
+            _authService.CheckIfNeededReLogin();
             var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/password");
             string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
 
