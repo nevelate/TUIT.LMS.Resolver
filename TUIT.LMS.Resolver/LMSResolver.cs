@@ -28,6 +28,8 @@ namespace TUIT.LMS.Resolver
         private const string ChangeLanguageRequestFormat = "_token={0}&language={1}";
         private const string ChangePasswordRequestFormat = "_token={0}&old_password={1}&password={2}&password_confirmation={3}";
 
+        private readonly CultureInfo defaultCulture = new("ru-RU");
+
         private LMSAuthService _authService;
 
         private readonly Dictionary<string, string> uploadRequestHeaders;
@@ -61,7 +63,7 @@ namespace TUIT.LMS.Resolver
             var information = new Information()
             {
                 FullName = document.QuerySelectorAll("div.card.relative p.m-b-xs")[0].TextContent.RemoveUpToColonAndTrim(),
-                BirthDate = DateOnly.Parse(document.QuerySelectorAll("div.card.relative p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(), new CultureInfo("ru-RU")),
+                BirthDate = DateOnly.Parse(document.QuerySelectorAll("div.card.relative p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(), defaultCulture),
                 Gender = document.QuerySelectorAll("div.card.relative p.m-b-xs")[2].TextContent.RemoveUpToColonAndTrim(),
                 StudentNumber = document.QuerySelectorAll("div.card.relative p.m-b-xs")[3].TextContent.RemoveUpToColonAndTrim(),
 
@@ -109,7 +111,7 @@ namespace TUIT.LMS.Resolver
                 {
                     Title = newsPage.QuerySelector("h4.panel__title")?.TextContent,
                     Description = newsPage.QuerySelector("div.panel-body blockquote div")?.TextContent,
-                    NewsDate = DateOnly.Parse(newsPage.QuerySelector("div.panel-body blockquote footer cite").TextContent.Replace('-', '.'))
+                    NewsDate = DateOnly.Parse(newsPage.QuerySelector("div.panel-body blockquote footer cite").TextContent.Replace('-', '.'), defaultCulture)
                 }
                 );
             }
@@ -165,7 +167,7 @@ namespace TUIT.LMS.Resolver
                 {
                     ThemeTitle = tr.QuerySelector("td p").TextContent,
                     ThemeNumber = int.Parse(tr.QuerySelectorAll("td")[0].TextContent),
-                    LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty)),
+                    LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty), defaultCulture),
                     LessonType = lessonType,
                 };
 
@@ -207,7 +209,7 @@ namespace TUIT.LMS.Resolver
                 {
                     Teacher = tr.QuerySelectorAll("td")[0].TextContent,
                     TaskName = tr.QuerySelector("td div p").TextContent,
-                    Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, new CultureInfo("ru-RU")),
+                    Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, defaultCulture),
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = float.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
