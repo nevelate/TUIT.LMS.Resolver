@@ -9,7 +9,7 @@ namespace TUIT.LMS.Resolver.Examples
         static async Task Main(string[] args)
         {
             LMSAuthService authService = new LMSAuthService();
-            await authService.TryLoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
+            await authService.LoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
             LMSResolver resolver = new LMSResolver(authService);
 
             var information = await resolver.GetInformationAsync();

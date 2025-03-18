@@ -54,7 +54,7 @@ namespace TUIT.LMS.Resolver
                 };
         }
 
-        public async Task<bool> TryLoginAsync(string login, string password, string token, string grecaptcha)
+        public async Task LoginAsync(string login, string password, string token, string grecaptcha)
         {
             var content = new StringContent(string.Format(PostRequestFormat, token, login, password, grecaptcha));
             content.Headers.ContentType = new("application/x-www-form-urlencoded");
@@ -72,7 +72,14 @@ namespace TUIT.LMS.Resolver
             var response = await _httpClient.SendAsync(request);
             var responseAsString = await response.Content.ReadAsStringAsync();
 
-            return responseAsString.Contains("Dashboard");
+            if (!responseAsString.Contains("Dashboard"))
+            {
+                var document = await _htmlParser.ParseDocumentAsync(responseAsString);
+                var div = document.QuerySelector("div.login__item-content > div[role=alert]");
+
+                if (div != null) throw new Exception(div.TextContent);
+                else throw new Exception("Something went wrong. Please try again");
+            }
         }
 
         public void LogOut()
