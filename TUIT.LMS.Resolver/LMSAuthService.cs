@@ -31,9 +31,9 @@ namespace TUIT.LMS.Resolver
                 AutomaticDecompression = DecompressionMethods.GZip,
                 Proxy = null,
                 UseProxy = false,
-                MaxConnectionsPerServer = 10,
+                MaxConnectionsPerServer = 8,
             };
-            _httpClient = new HttpClient(_httpClientHandler) { Timeout = new TimeSpan(0, 0, 30) };
+            _httpClient = new HttpClient(_httpClientHandler) { Timeout = new TimeSpan(0, 0, 20) };
 
             _htmlParser = new HtmlParser();
 
@@ -77,8 +77,8 @@ namespace TUIT.LMS.Resolver
                 var document = await _htmlParser.ParseDocumentAsync(responseAsString);
                 var div = document.QuerySelector("div.login__item-content > div[role=alert]");
 
-                if (div != null) throw new Exception(div.TextContent);
-                else throw new Exception("Something went wrong. Please try again");
+                if (div != null) throw new Exception(div.TextContent.Replace("×", "").Trim());
+                else throw new ApplicationException();
             }
         }
 
@@ -103,7 +103,7 @@ namespace TUIT.LMS.Resolver
         }
 
         public async Task<IDocument> GetHTMLAsync(string? requestUri)
-        {            
+        {
             var responseAsString = await _httpClient.GetStringAsync(requestUri);
             return await _htmlParser.ParseDocumentAsync(responseAsString);
         }

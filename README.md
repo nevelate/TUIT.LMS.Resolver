@@ -14,8 +14,8 @@ Library consists of two main classes:
 ### LMSAuthService
 ```csharp
 event Action? LoginRequested; // fires when unable to get data
-async Task<bool> TryLoginAsync(string login, string password, string token, string grecaptcha);
- // Try to login, requires token and captcha
+async Task LoginAsync(string login, string password, string token, string grecaptcha);
+ // Log in, requires token and captcha. Throws exception when unable to login.
 
 void LogOut(); // log out from account
 CheckIfNeededReLogin(); // fires LoginRequested if needed relogin
@@ -41,7 +41,7 @@ async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId); // get Course, Absenc
 async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId); // upload deadline
 async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId); // upload file (using stream)
 async Task<string?> GetAccountFullName(); // get normalized account full name
-async Task<TableLessonType> GetLessonSideAsync(int semesterId); // get current week lesson side (left or right)
+async Task<TableLessonType> GetLessonSideAsync(int semesterId, TableLessonType firstWeekTableLessonSide = TableLessonType.left); // get current week lesson side (left or right)
 
 public enum TableLessonType
 {
