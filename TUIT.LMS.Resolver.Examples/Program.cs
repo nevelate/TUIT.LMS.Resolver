@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TUIT.LMS.Resolver;
 using TUIT.LMS.Resolver.LMSObjects;
 
 namespace TUIT.LMS.Resolver.Examples
@@ -8,7 +9,7 @@ namespace TUIT.LMS.Resolver.Examples
     {
         static async Task Main(string[] args)
         {
-            LMSAuthService authService = new LMSAuthService();
+            LmsAuthService authService = new LmsAuthService();
             try
             {
                 await authService.LoginAsync(Secrets.Login, Secrets.Password, Secrets.Token, Secrets.Grecaptcha);
@@ -18,7 +19,7 @@ namespace TUIT.LMS.Resolver.Examples
                 Console.WriteLine("ex");
                 Console.WriteLine(e.Message);
             }
-            LMSResolver resolver = new LMSResolver(authService);
+            LmsResolver resolver = new LmsResolver(authService);
 
             var information = await resolver.GetInformationAsync();
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TUIT.LMS.Resolver.LMSObjects
+﻿namespace TUIT.LMS.Resolver.LMSObjects
 {
     public class AssignmentsPage
     {
@@ -21,7 +15,7 @@ namespace TUIT.LMS.Resolver.LMSObjects
         public string? Teacher { get; set; }
 
         public string? TaskName { get; set; }
-        public LMSFile? TaskFile { get; set; }
+        public LmsFile? TaskFile { get; set; }
 
         public DateTime Deadline { get; set; }
 
@@ -29,7 +23,7 @@ namespace TUIT.LMS.Resolver.LMSObjects
         public float MaxGrade { get; set; }
 
         public int? UploadId { get; set; }
-        public LMSFile? UploadedFile { get; set; }
+        public LmsFile? UploadedFile { get; set; }
 
         public bool IsFailed { get; set; }
     }

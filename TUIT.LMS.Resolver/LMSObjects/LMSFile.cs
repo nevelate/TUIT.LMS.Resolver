@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TUIT.LMS.Resolver.LMSObjects
+﻿namespace TUIT.LMS.Resolver.LMSObjects
 {
-    public class LMSFile
+    public class LmsFile
     {
         public string? FileName { get; set; }
         public string? FileUrl { get; set; }
 
-        public LMSFile()
+        public LmsFile()
         {
 
         }
 
-        public LMSFile(string fileName, string fileUrl)
+        public LmsFile(string fileName, string fileUrl)
         {
             FileName = fileName;
             FileUrl = fileUrl;

@@ -1,17 +1,12 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TUIT.LMS.Resolver.LMSObjects
 {
     public class TableLesson
     {
-        private static readonly Regex isLectureRegex = new(@"\d\d\d$");
-        private static readonly Regex isLaboratoryRegex = new(@"\-\w\d$");
+        private static readonly Regex IsLectureRegex = new(@"\d\d\d$");
+        private static readonly Regex IsLaboratoryRegex = new(@"\-\w\d$");
         private static readonly Regex SubjectRegex = new(@"\)[^-]+\-");
         private static readonly Regex StreamRegex = new(@"\D\D\D\d+-*\w*$");
         private static readonly Regex RoomRegex = new(@"\D-\d+");
@@ -37,8 +32,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
         {
             title = title.Replace("/", "").Replace("\n", "");
 
-            if (isLectureRegex.IsMatch(title)) LessonType = LessonType.Lecture;
-            else if (isLaboratoryRegex.IsMatch(title)) LessonType = LessonType.Laboratory;
+            if (IsLectureRegex.IsMatch(title)) LessonType = LessonType.Lecture;
+            else if (IsLaboratoryRegex.IsMatch(title)) LessonType = LessonType.Laboratory;
             else LessonType = LessonType.Practice;
             
             TableLessonType = (TableLessonType)type;

@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TUIT.LMS.Resolver.JsonConverters
 {
@@ -17,8 +12,8 @@ namespace TUIT.LMS.Resolver.JsonConverters
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            string data = reader.Value as string;
-            DateOnly date = DateOnly.Parse(data, new CultureInfo("ru-RU"));
+            var data = reader.Value as string;
+            var date = DateOnly.Parse(data, new CultureInfo("ru-RU"));
             return date;
         }
 

@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TUIT.LMS.Resolver.JsonConverters;
 
 namespace TUIT.LMS.Resolver.LMSObjects
@@ -12,8 +7,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
     public class Course
     {
 
-        private static readonly Regex isLectureRegex = new(@"\d\d\d$");
-        private static readonly Regex isLaboratoryRegex = new(@"\-\w\d$");
+        private static readonly Regex IsLectureRegex = new(@"\d\d\d$");
+        private static readonly Regex IsLaboratoryRegex = new(@"\-\w\d$");
 
         public int Id { get; set; }
 
@@ -49,8 +44,8 @@ namespace TUIT.LMS.Resolver.LMSObjects
 
             foreach (var stream in Streams) 
             {
-                if (isLectureRegex.IsMatch(stream)) LessonTypes.Add(LessonType.Lecture);
-                else if (isLaboratoryRegex.IsMatch(stream)) LessonTypes.Add(LessonType.Laboratory);
+                if (IsLectureRegex.IsMatch(stream)) LessonTypes.Add(LessonType.Lecture);
+                else if (IsLaboratoryRegex.IsMatch(stream)) LessonTypes.Add(LessonType.Laboratory);
                 else LessonTypes.Add(LessonType.Practice);
             }
         }

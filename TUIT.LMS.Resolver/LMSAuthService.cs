@@ -1,13 +1,10 @@
-﻿using AngleSharp.Browser;
-using AngleSharp.Dom;
+﻿using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using System.Net;
-using System.Net.Http;
-using System.Text.RegularExpressions;
 
 namespace TUIT.LMS.Resolver
 {
-    public class LMSAuthService
+    public class LmsAuthService
     {
         private HttpClient _httpClient;
         private HttpClientHandler _httpClientHandler;
@@ -16,13 +13,13 @@ namespace TUIT.LMS.Resolver
 
         private HtmlParser _htmlParser;
 
-        private readonly Dictionary<string, string> loginRequestHeaders;
+        private readonly Dictionary<string, string> _loginRequestHeaders;
 
         private const string PostRequestFormat = "_token={0}&login={1}&password={2}&g-recaptcha-response={3}";
 
         public event Action? LoginRequested;
 
-        public LMSAuthService()
+        public LmsAuthService()
         {
             _cookieContainer = new CookieContainer();
             _httpClientHandler = new HttpClientHandler
@@ -37,7 +34,7 @@ namespace TUIT.LMS.Resolver
 
             _htmlParser = new HtmlParser();
 
-            loginRequestHeaders = new()
+            _loginRequestHeaders = new()
                 {
                     {"Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"},
                     {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"},
@@ -64,7 +61,7 @@ namespace TUIT.LMS.Resolver
                 Content = content,
             };
 
-            foreach (var pair in loginRequestHeaders)
+            foreach (var pair in _loginRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }
@@ -102,7 +99,7 @@ namespace TUIT.LMS.Resolver
             if (cookies.Any(c => c.Expired)) LoginRequested?.Invoke();
         }
 
-        public async Task<IDocument> GetHTMLAsync(string? requestUri)
+        public async Task<IDocument> GetHtmlAsync(string? requestUri)
         {
             var responseAsString = await _httpClient.GetStringAsync(requestUri);
             return await _htmlParser.ParseDocumentAsync(responseAsString);

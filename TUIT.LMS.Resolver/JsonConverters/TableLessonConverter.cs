@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TUIT.LMS.Resolver.LMSObjects;
 
 namespace TUIT.LMS.Resolver.JsonConverters
@@ -18,14 +13,14 @@ namespace TUIT.LMS.Resolver.JsonConverters
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            JObject jo = JObject.Load(reader);
-            DateTime startTime = DateTime.Parse(jo["StartTime"].ToString());
-            string subject = jo["Subject"].ToString();
-            string stream = jo["Stream"].ToString();
-            string room = jo["Room"].ToString();
-            DayOfWeek lessonDay = startTime.DayOfWeek;
-            TableLessonType tableLessonType = (TableLessonType)int.Parse(jo["TableLessonType"].ToString());
-            LessonType lessonType = (LessonType)int.Parse(jo["LessonType"].ToString());
+            var jo = JObject.Load(reader);
+            var startTime = DateTime.Parse(jo["StartTime"].ToString());
+            var subject = jo["Subject"].ToString();
+            var stream = jo["Stream"].ToString();
+            var room = jo["Room"].ToString();
+            var lessonDay = startTime.DayOfWeek;
+            var tableLessonType = (TableLessonType)int.Parse(jo["TableLessonType"].ToString());
+            var lessonType = (LessonType)int.Parse(jo["LessonType"].ToString());
 
             return new TableLesson()
             {

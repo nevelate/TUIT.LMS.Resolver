@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
 using TUIT.LMS.Resolver.JsonConverters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TUIT.LMS.Resolver.LMSObjects
 {

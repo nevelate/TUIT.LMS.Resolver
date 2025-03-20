@@ -1,24 +1,13 @@
-﻿using AngleSharp.Browser;
-using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
-using Newtonsoft.Json;
+﻿using AngleSharp.Dom;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Globalization;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TUIT.LMS.Resolver.LMSObjects;
 
 namespace TUIT.LMS.Resolver
 {
-    public class LMSResolver
+    public class LmsResolver
     {
         private const string MyCoursesUrl = "https://lms.tuit.uz/student/my-courses/data?semester_id=";
         private const string FinalsUrl = "https://lms.tuit.uz/student/finals/data?semester_id=";
@@ -28,17 +17,17 @@ namespace TUIT.LMS.Resolver
         private const string ChangeLanguageRequestFormat = "_token={0}&language={1}";
         private const string ChangePasswordRequestFormat = "_token={0}&old_password={1}&password={2}&password_confirmation={3}";
 
-        private readonly CultureInfo defaultCulture = new("ru-RU");
+        private readonly CultureInfo _defaultCulture = new("ru-RU");
 
-        private LMSAuthService _authService;
+        private LmsAuthService _authService;
 
-        private readonly Dictionary<string, string> uploadRequestHeaders;
+        private readonly Dictionary<string, string> _uploadRequestHeaders;
 
-        public LMSResolver(LMSAuthService authService)
+        public LmsResolver(LmsAuthService authService)
         {
             _authService = authService;
 
-            uploadRequestHeaders = new()
+            _uploadRequestHeaders = new()
                 {
                     {"Accept", "*/*"},
                     {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"},
@@ -59,11 +48,11 @@ namespace TUIT.LMS.Resolver
         public async Task<Information> GetInformationAsync()
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/info");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/student/info");
             var information = new Information()
             {
                 FullName = document.QuerySelectorAll("div.card.relative p.m-b-xs")[0].TextContent.RemoveUpToColonAndTrim(),
-                BirthDate = DateOnly.Parse(document.QuerySelectorAll("div.card.relative p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(), defaultCulture),
+                BirthDate = DateOnly.Parse(document.QuerySelectorAll("div.card.relative p.m-b-xs")[1].TextContent.RemoveUpToColonAndTrim(), _defaultCulture),
                 Gender = document.QuerySelectorAll("div.card.relative p.m-b-xs")[2].TextContent.RemoveUpToColonAndTrim(),
                 StudentNumber = document.QuerySelectorAll("div.card.relative p.m-b-xs")[3].TextContent.RemoveUpToColonAndTrim(),
 
@@ -93,14 +82,14 @@ namespace TUIT.LMS.Resolver
                 _ => "https://lms.tuit.uz/dashboard/news?page=" + page,
             };
 
-            var document = await _authService.GetHTMLAsync(newsUrl);
+            var document = await _authService.GetHtmlAsync(newsUrl);
             List<News> news = new List<News>();
             List<Task<IDocument>> htmlDocumentTasks = [];
 
             foreach (var column in document.QuerySelectorAll("div.row div.col-md-4 div.card.p"))
             {
                 var url = column.QuerySelector("div.d-flex a")?.GetAttribute("href");
-                htmlDocumentTasks.Add(_authService.GetHTMLAsync(url));
+                htmlDocumentTasks.Add(_authService.GetHtmlAsync(url));
             }
 
             var htmlDocuments = await Task.WhenAll(htmlDocumentTasks);
@@ -111,7 +100,7 @@ namespace TUIT.LMS.Resolver
                 {
                     Title = newsPage.QuerySelector("h4.panel__title")?.TextContent,
                     Description = newsPage.QuerySelector("div.panel-body blockquote div")?.TextContent,
-                    NewsDate = DateOnly.Parse(newsPage.QuerySelector("div.panel-body blockquote footer cite").TextContent.Replace('-', '.'), defaultCulture)
+                    NewsDate = DateOnly.Parse(newsPage.QuerySelector("div.panel-body blockquote footer cite").TextContent.Replace('-', '.'), _defaultCulture)
                 }
                 );
             }
@@ -122,7 +111,7 @@ namespace TUIT.LMS.Resolver
         public async Task<List<Discipline>> GetDisciplinesAsync()
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/study-plan");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/student/study-plan");
 
             List<Discipline> disciplines = new List<Discipline>();
 
@@ -151,10 +140,10 @@ namespace TUIT.LMS.Resolver
             _authService.CheckIfNeededReLogin();
             var dateRegex = new Regex(@"\(.*\)");
 
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/calendar/" + courseId);
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/student/calendar/" + courseId);
             List<Lesson> lessons = new List<Lesson>();
 
-            string lessonTypeQuery = lessonType switch
+            var lessonTypeQuery = lessonType switch
             {
                 LessonType.Lecture => "div#lecture tbody > tr",
                 LessonType.Practice => "div#practice tbody > tr",
@@ -167,11 +156,11 @@ namespace TUIT.LMS.Resolver
                 {
                     ThemeTitle = tr.QuerySelector("td p").TextContent,
                     ThemeNumber = int.Parse(tr.QuerySelectorAll("td")[0].TextContent),
-                    LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty), defaultCulture),
+                    LessonDate = DateOnly.Parse(dateRegex.Replace(tr.QuerySelectorAll("td")[2].TextContent, (m) => string.Empty), _defaultCulture),
                     LessonType = lessonType,
                 };
 
-                var attachments = new List<LMSFile>();
+                var attachments = new List<LmsFile>();
 
                 foreach (var a in tr.QuerySelectorAll("td a"))
                 {
@@ -189,11 +178,11 @@ namespace TUIT.LMS.Resolver
         public async Task<AssignmentsPage?> GetAssignmentsPageAsync(int courseId)
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             if (document.QuerySelector("div.page-inner > div.panel") == null) return null;
 
-            AssignmentsPage assignmentsPage = new AssignmentsPage()
+            var assignmentsPage = new AssignmentsPage()
             {
                 AchievedPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[0].TextContent.Replace('.', ',')),
                 MaxPoints = float.Parse(document.QuerySelectorAll("tbody tr td h4")[1].TextContent),
@@ -209,7 +198,7 @@ namespace TUIT.LMS.Resolver
                 {
                     Teacher = tr.QuerySelectorAll("td")[0].TextContent,
                     TaskName = tr.QuerySelector("td div p").TextContent,
-                    Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, defaultCulture),
+                    Deadline = DateTime.Parse(tr.QuerySelectorAll("td")[2].TextContent, _defaultCulture),
                     CurrentGrade = tr.QuerySelectorAll("td.text-center div button")[0].TextContent.ParseOrReturnNull(),
                     MaxGrade = float.Parse(tr.QuerySelectorAll("td.text-center div button")[1].TextContent),
                 };
@@ -251,12 +240,12 @@ namespace TUIT.LMS.Resolver
         public async Task<Dictionary<int, string>> GetSemesterIdsAsync()
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/student/my-courses");
             Dictionary<int, string> dictionary = new Dictionary<int, string>();
 
             foreach (var option in document.QuerySelectorAll("select.js-semester option"))
             {
-                string semester = option.TextContent.Trim('\n', ' ', '\t');
+                var semester = option.TextContent.Trim('\n', ' ', '\t');
                 dictionary.Add(int.Parse(option.GetAttribute("value")), Regex.Replace(semester, @"\s\s+", " "));
             }
 
@@ -271,10 +260,10 @@ namespace TUIT.LMS.Resolver
         /// </summary>
         /// <param name="semesterId">Semester Id</param>
         /// <returns>LMSObject List</returns>
-        public async Task<List<T>> GetLMSObjectsAsync<T>(int semesterId)
+        public async Task<List<T>> GetLmsObjectsAsync<T>(int semesterId)
         {
             _authService.CheckIfNeededReLogin();
-            string url = typeof(T).Name switch
+            var url = typeof(T).Name switch
             {
                 "Course" => MyCoursesUrl,
                 "Absence" => AbsencesUrl,
@@ -282,7 +271,7 @@ namespace TUIT.LMS.Resolver
                 "Final" => FinalsUrl,
             };
 
-            JObject jObject = JObject.Parse(await _authService.GetStringAsync(url + semesterId));
+            var jObject = JObject.Parse(await _authService.GetStringAsync(url + semesterId));
             List<JToken> results = jObject[typeof(T) == typeof(TableLesson) ? "json" : "data"].Children().ToList();
 
             List<T> list = new List<T>();
@@ -298,7 +287,7 @@ namespace TUIT.LMS.Resolver
         public async Task<bool> UploadFileAsync(string filePath, int courseId, int uploadId)
         {
             _authService.CheckIfNeededReLogin();
-            var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var getDocumentAsync = _authService.GetHtmlAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             using var multipartFormContent = new MultipartFormDataContent();
 
@@ -314,13 +303,13 @@ namespace TUIT.LMS.Resolver
                 Content = multipartFormContent,
             };
 
-            foreach (var pair in uploadRequestHeaders)
+            foreach (var pair in _uploadRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }
 
-            string? csrf_token = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
-            request.Headers.Add("X-CSRF-TOKEN", csrf_token);
+            var csrfToken = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
+            request.Headers.Add("X-CSRF-TOKEN", csrfToken);
 
             using var response = await _authService.SendAsync(request);
 
@@ -330,7 +319,7 @@ namespace TUIT.LMS.Resolver
         public async Task<bool> UploadFileAsync(Stream stream, string fileName, int courseId, int uploadId)
         {
             _authService.CheckIfNeededReLogin();
-            var getDocumentAsync = _authService.GetHTMLAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
+            var getDocumentAsync = _authService.GetHtmlAsync("https://lms.tuit.uz/student/my-courses/show/" + courseId);
 
             using var multipartFormContent = new MultipartFormDataContent();
 
@@ -346,13 +335,13 @@ namespace TUIT.LMS.Resolver
                 Content = multipartFormContent,
             };
 
-            foreach (var pair in uploadRequestHeaders)
+            foreach (var pair in _uploadRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }
 
-            string? csrf_token = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
-            request.Headers.Add("X-CSRF-TOKEN", csrf_token);
+            var csrfToken = (await getDocumentAsync).GetElementsByName("csrf-token")[0].GetAttribute("content");
+            request.Headers.Add("X-CSRF-TOKEN", csrfToken);
 
             using var response = await _authService.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
@@ -363,19 +352,19 @@ namespace TUIT.LMS.Resolver
         public async Task<string?> GetAccountFullName()
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/dashboard/news");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/dashboard/news");
             var fullName = document.QuerySelector("ul.dropdown-menu > li > div")?.TextContent.Trim().ToLower();
 
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fullName);
         }
 
-        public async Task<TableLessonType> GetLessonSideAsync(int semesterId, TableLessonType firstWeekTableLessonSide = TableLessonType.left)
+        public async Task<TableLessonType> GetLessonSideAsync(int semesterId, TableLessonType firstWeekTableLessonSide = TableLessonType.Left)
         {
             _authService.CheckIfNeededReLogin();
-            var getCoursesAsync = GetLMSObjectsAsync<Course>(semesterId);
+            var getCoursesAsync = GetLmsObjectsAsync<Course>(semesterId);
 
             var courses = await getCoursesAsync;
-            int index = 0;
+            var index = 0;
             var lessons = new List<Lesson>();
 
             do
@@ -384,7 +373,7 @@ namespace TUIT.LMS.Resolver
             }
             while (index < courses.Count && !lessons.Any());            
 
-            DateTime firstLessonDate = DateTime.MinValue;
+            var firstLessonDate = DateTime.MinValue;
 
             try
             {
@@ -401,7 +390,7 @@ namespace TUIT.LMS.Resolver
                 ?
                 firstWeekTableLessonSide
                 :
-                (firstWeekTableLessonSide == TableLessonType.left ? TableLessonType.right : TableLessonType.left);
+                (firstWeekTableLessonSide == TableLessonType.Left ? TableLessonType.Right : TableLessonType.Left);
         }
 
         /// <summary>
@@ -412,10 +401,10 @@ namespace TUIT.LMS.Resolver
         public async Task<bool> ChangeLanguageAsync(string language)
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/language");
-            string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/profile/language");
+            var token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
 
-            var content = new StringContent(string.Format(ChangeLanguageRequestFormat, _token, language));
+            var content = new StringContent(string.Format(ChangeLanguageRequestFormat, token, language));
             content.Headers.ContentType = new("application/x-www-form-urlencoded");
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/profile/language")
@@ -423,7 +412,7 @@ namespace TUIT.LMS.Resolver
                 Content = content,
             };
 
-            foreach (var pair in uploadRequestHeaders)
+            foreach (var pair in _uploadRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }
@@ -435,10 +424,10 @@ namespace TUIT.LMS.Resolver
         public async Task<bool> ChangePasswordAsync(string oldPassword, string newPassword)
         {
             _authService.CheckIfNeededReLogin();
-            var document = await _authService.GetHTMLAsync("https://lms.tuit.uz/profile/password");
-            string? _token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
+            var document = await _authService.GetHtmlAsync("https://lms.tuit.uz/profile/password");
+            var token = document.QuerySelector("input[name=_token]")?.GetAttribute("value");
 
-            var content = new StringContent(string.Format(ChangePasswordRequestFormat, _token, oldPassword, newPassword, newPassword));
+            var content = new StringContent(string.Format(ChangePasswordRequestFormat, token, oldPassword, newPassword, newPassword));
             content.Headers.ContentType = new("application/x-www-form-urlencoded");
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://lms.tuit.uz/profile/password")
@@ -446,7 +435,7 @@ namespace TUIT.LMS.Resolver
                 Content = content,
             };
 
-            foreach (var pair in uploadRequestHeaders)
+            foreach (var pair in _uploadRequestHeaders)
             {
                 request.Headers.Add(pair.Key, pair.Value);
             }
