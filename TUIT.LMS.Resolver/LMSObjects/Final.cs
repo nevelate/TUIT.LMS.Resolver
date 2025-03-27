@@ -33,11 +33,5 @@ namespace TUIT.LMS.Resolver.LMSObjects
         [JsonProperty("final_info")]
         [JsonConverter(typeof(TestPointsConverter))]
         public List<TestPoint> TestPoints { get; set; }
-    }
-
-    public class TestPoint
-    {
-        public int TestNumber { get; set; }
-        public int Point { get; set; }
-    }
+    }    
 }
