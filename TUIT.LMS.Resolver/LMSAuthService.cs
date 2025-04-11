@@ -19,8 +19,11 @@ namespace TUIT.LMS.Resolver
 
         public event Action? LoginRequested;
 
-        public LmsAuthService()
+        private bool _checkAuthStateByRequest = false;
+
+        public LmsAuthService(bool checkAuthStateByRequest = false)
         {
+            _checkAuthStateByRequest = checkAuthStateByRequest;
             _cookieContainer = new CookieContainer();
             _httpClientHandler = new HttpClientHandler
             {
@@ -95,8 +98,19 @@ namespace TUIT.LMS.Resolver
 
         public void CheckIfNeededReLogin()
         {
-            var cookies = _cookieContainer.GetCookies(new Uri("https://lms.tuit.uz"));
-            if (cookies.Any(c => c.Expired)) LoginRequested?.Invoke();
+            if (_checkAuthStateByRequest)
+            {
+                Task.Run(async () =>
+                {
+                    var response = await _httpClient.GetStringAsync("https://lms.tuit.uz");
+                    if (!response.Contains("Dashboard")) LoginRequested?.Invoke();
+                });                
+            }
+            else
+            {
+                var cookies = _cookieContainer.GetCookies(new Uri("https://lms.tuit.uz"));
+                if (cookies.Any(c => c.Expired)) LoginRequested?.Invoke();
+            }
         }
 
         public async Task<IDocument> GetHtmlAsync(string? requestUri)
